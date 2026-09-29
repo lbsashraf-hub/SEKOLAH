@@ -13,63 +13,133 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
     <script>
-        // Data Jadwal per hari untuk setiap guru
         const jadwalGuru = {
-            "Ashraf": {
+            "H. Ashraf Nur Ramadhan S.sos": {
+                "Sabtu": [
+                    { jam: "07:30 - 08:30", kelas: "XI", mapel: "Sejarah" },
+                    { jam: "08:30 - 09:30", kelas: "X", mapel: "Sejarah" }
+                ]
+            },
+            "HJ. Mutiara Zulfa S.pd": {
                 "Senin": [
-                    { jam: "07:30 - 09:00", kelas: "XII IPA 1", mapel: "Matematika Peminatan", ruang: "R. 201" },
-                    { jam: "09:15 - 10:45", kelas: "XI IPS 2", mapel: "Matematika Wajib", ruang: "R. 105" }
+                    { jam: "08:30 - 09:30", kelas: "XII", mapel: "Sejarah" }, 
+                    { jam: "10:00 - 11:00", kelas: "XII", mapel: "B.Inggris" }, 
+                    { jam: "11:00 - 12:00", kelas: "XI", mapel: "B.Inggris" }
                 ],
                 "Selasa": [
-                    { jam: "07:30 - 09:00", kelas: "X IPA 3", mapel: "Matematika Wajib", ruang: "R. 03" },
-                    { jam: "10:00 - 11:30", kelas: "XII IPA 1", mapel: "Matematika Peminatan", ruang: "R. 201" }
+                    { jam: "08:30 - 09:30", kelas: "XI", mapel: "Bahasa Inggris" }, 
+                ]
+            },
+            "Hanifah S.pd": {
+                "Senin": [
+                    { jam: "08:30 - 09:00", kelas: "X", mapel: "Bahasa Arab" }, 
+                    { jam: "09:00 - 09:30", kelas: "XI", mapel: "Bahasa Arab" },
+                    { jam: "11:00 - 12:00", kelas: "XI", mapel: "Bahasa Arab" },
                 ],
                 "Rabu": [
-                    { jam: "08:00 - 09:30", kelas: "XI IPS 1", mapel: "Matematika Wajib", ruang: "R. 104" }
-                ],
-                "Kamis": [
-                    { jam: "07:30 - 09:00", kelas: "X IPA 1", mapel: "Matematika Wajib", ruang: "R. 01" }
+                    { jam: "08:30 - 09:30", kelas: "XII", mapel: "Bahasa Arab" },
+                    { jam: "11:00 - 12:00", kelas: "XI", mapel: "Bahasa Arab" }
+                ]
+            },
+            "HJ. Sofa Fitriana S.Ag": {
+                "Senin": [
+                    { jam: "08:30 - 09:30", kelas: "XI", mapel: "Agama Islam" },
                 ],
                 "Jumat": [
-                    { jam: "07:30 - 09:00", kelas: "XII IPA 2", mapel: "Matematika Peminatan", ruang: "R. 202" }
+                    { jam: "08:30 - 09:30", kelas: "X", mapel: "Agama Islam" },
                 ],
-                "Sabtu": []
+                "Sabtu": [
+                    { jam: "08:30 - 09:30", kelas: "XII", mapel: "Agama Islam" },
+                ]
             },
-            "Tiara": {
+            "Erik Irawan S.pd": {
                 "Senin": [
-                    { jam: "07:30 - 09:00", kelas: "X IPS 1", mapel: "Bahasa Indonesia", ruang: "R. 101" }
+                    { jam: "11:00 - 12:00", kelas: "XII", mapel: "Bahasa Arab" }, 
                 ],
                 "Selasa": [
-                    { jam: "09:15 - 10:45", kelas: "XII IPA 2", mapel: "Bahasa Indonesia", ruang: "R. 202" },
-                    { jam: "13:00 - 14:30", kelas: "XI IPA 1", mapel: "Literasi & Bahasa", ruang: "R. 204" }
-                ],
+                    { jam: "08:30 - 09:30", kelas: "X", mapel: "Bahasa Arab" },
+                    ],
                 "Rabu": [
-                    { jam: "07:30 - 09:00", kelas: "X IPS 2", mapel: "Bahasa Indonesia", ruang: "R. 102" }
-                ],
+                    { jam: "08:30 - 09:30", kelas: "XI", mapel: "Bahasa Arab" },
+                ]
+            },
+            "Dina Tiaz Nabila S.pd": {
+                "Senin": [
+                    { jam: "07:30 - 09:30", kelas: "XII", mapel: "Biologi" }, 
+                    { jam: "10:00 - 12:00", kelas: "XI", mapel: "Biologi" }, 
+                 ],
                 "Kamis": [
-                    { jam: "10:00 - 11:30", kelas: "XII IPS 1", mapel: "Bahasa Indonesia", ruang: "R. 205" }
-                ],
+                    { jam: "08:00 - 09:30", kelas: "X", mapel: "IPA" },
+                ]
+            },
+            "Nuryanti Lestari S.pd": {
+                "Selasa": [
+                    { jam: "07:30 - 08:30", kelas: "XI", mapel: "Kimia" },                      
+                    ],                    
                 "Jumat": [
-                    { jam: "08:00 - 09:30", kelas: "XI IPA 2", mapel: "Bahasa Indonesia", ruang: "R. 203" }
-                ],
-                "Sabtu": []
+                    { jam: "07:30 - 09:30", kelas: "XII", mapel: "Kimia" },
+                    { jam: "10:00 - 11:00", kelas: "XI", mapel: "Kimia" },
+                ]
             },
-            "Nadiv": {
-                "Senin": [
-                    { jam: "08:15 - 09:45", kelas: "X IPA 1", mapel: "Informatika / Komputer", ruang: "Lab Komputer 1" }
-                ],
+            "Dzikri Ash Shiddiqi S.pd": {
                 "Selasa": [
-                    { jam: "10:00 - 11:30", kelas: "XI IPS 1", mapel: "Informatika / Komputer", ruang: "Lab Komputer 1" },
-                    { jam: "13:00 - 14:30", kelas: "XII IPS 2", mapel: "Simulasi Digital", ruang: "Lab Komputer 2" }
-                ],
+                    { jam: "08:30 - 09:30", kelas: "XI", mapel: "Fisika" }, 
+                    { jam: "10:00 - 12:00", kelas: "XII", mapel: "Fisika" }, 
+                 ]
+            },
+            "Fitria": {
                 "Rabu": [
-                    { jam: "07:30 - 09:00", kelas: "X IPA 2", mapel: "Informatika / Komputer", ruang: "Lab Komputer 1" }
-                ],
+                    { jam: "08:30 - 09:30", kelas: "X", mapel: "BK" }, 
+                    { jam: "10:00 - 11:00", kelas: "XI", mapel: "BK" }, 
+                    { jam: "11:00 - 12:00", kelas: "XII", mapel: "BK" }
+                 ]
+            },
+            "Resma": {
+                "Selasa": [
+                    { jam: "10:00 - 12:00", kelas: "X", mapel: "Kewirausahaan" },
+                    ],                    
+                "Rabu": [
+                    { jam: "10:00 - 11:00", kelas: "XII", mapel: "Kimia" },
+                 ]
+            },
+            "Denden S.M": {
+                "Rabu": [
+                    { jam: "10:00 - 11:00", kelas: "XII", mapel: "PJOK" },
+                    { jam: "11:00 - 12:00", kelas: "X", mapel: " PJOK" }
+                    ],                    
                 "Kamis": [
-                    { jam: "09:15 - 10:45", kelas: "XI IPA 1", mapel: "Informatika / Komputer", ruang: "Lab Komputer 1" }
-                ],
-                "Jumat": [],
-                "Sabtu": []
+                    { jam: "11:00 - 12:00", kelas: "XI", mapel: "PJOK" },
+                  ]
+            },
+          "Idan Nurjaman": {
+                "Kamis": [
+                    { jam: "07:30 - 08:30", kelas: "XI", mapel: "TIK" },
+                    { jam: "10.00- 11:00", kelas: "XII", mapel: "TIK" },
+                    { jam: "11.00- 12:00", kelas: "X", mapel: "TIK" },
+                  ]
+            },
+          "Ridwan Tresna S.T": {
+                "Kamis": [
+                    { jam: "08:30 - 09:30", kelas: "XI", mapel: "Bahasa Inggris" },
+                    { jam: "10.00- 11:00", kelas: "XII", mapel: "Bahasa Inggris" },
+                    { jam: "11.00- 12:00", kelas: "X", mapel: "Bahasa Inggris" }
+                    ]
+            },
+            "Ahma Fasani S.pd": {
+                "Kamis": [
+                    { jam: "08:30 - 09:30", kelas: "XII", mapel: "Bahasa Indonesia" },
+                    { jam: "10.00- 11:00", kelas: "XI", mapel: "Bahasa Indonesia" },
+                    ],
+                "Sabtu": [
+                    { jam: "07:30 - 08:30", kelas: "X", mapel: "Bahasa Indonesia" },
+                   ]
+            },
+            "Robi M. Aldi S.pd": {
+                "Jumat": [
+                    { jam: "07:30 - 08:30", kelas: "X", mapel: "SBK" },
+                    { jam: "08.30- 09:30", kelas: "XI", mapel: "SBK" },
+                    { jam: "10.00- 11:00", kelas: "XII", mapel: "SBK" }
+                 ]
             }
         };
 
@@ -103,23 +173,22 @@
             }
         ];
 
+        let riwayatPresensiData = {};
         const daftarSemuaGuru = Object.keys(jadwalGuru);
         const daftarHari = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
         
         let today;
-        let guruAktif = "Ashraf";
-        let hariAktif = "Senin";
+        let guruAktif = "H. Ashraf Nur Ramadhan S.sos";
         let hariSemuaAktif = "Senin";
+        let statusIzinPilihan = "Izin (Keperluan Mendesak)";
 
         window.addEventListener('DOMContentLoaded', () => {
             today = new Date();
             
             const dayIndex = today.getDay();
             if (dayIndex >= 1 && dayIndex <= 6) {
-                hariAktif = daftarHari[dayIndex - 1];
                 hariSemuaAktif = daftarHari[dayIndex - 1];
             } else {
-                hariAktif = "Senin";
                 hariSemuaAktif = "Senin";
             }
 
@@ -150,6 +219,8 @@
             const pageUtama = document.getElementById('page-utama');
             const pageInformasi = document.getElementById('page-informasi');
             const pageSemuaJadwal = document.getElementById('page-semua-jadwal');
+            const pageRiwayat = document.getElementById('page-riwayat');
+            const pageIzin = document.getElementById('page-izin');
             
             const sidebar = document.getElementById('sidebar-menu');
             if(sidebar && !sidebar.classList.contains('translate-x-full')) {
@@ -160,6 +231,8 @@
                 pageUtama.classList.add('hidden');
                 pageInformasi.classList.add('hidden');
                 pageSemuaJadwal.classList.add('hidden');
+                if(pageRiwayat) pageRiwayat.classList.add('hidden');
+                if(pageIzin) pageIzin.classList.add('hidden');
 
                 if (pageId === 'informasi') {
                     pageInformasi.classList.remove('hidden');
@@ -167,6 +240,15 @@
                     pageSemuaJadwal.classList.remove('hidden');
                     renderTabHariSemua();
                     renderTabelSemuaGuru();
+                } else if (pageId === 'riwayat') {
+                    if(pageRiwayat) pageRiwayat.classList.remove('hidden');
+                    renderTabelRiwayat();
+                } else if (pageId === 'izin') {
+                    if(pageIzin) {
+                        pageIzin.classList.remove('hidden');
+                        const inputNamaIzin = document.getElementById('izin-nama-guru');
+                        if(inputNamaIzin) inputNamaIzin.value = guruAktif;
+                    }
                 } else {
                     pageUtama.classList.remove('hidden');
                 }
@@ -240,40 +322,72 @@
 
             const qrStatus = document.getElementById("qr-status");
             if(qrStatus) qrStatus.innerText = `Token aktif untuk hari ini`;
-
-            renderTombolHari();
-            renderTabelJadwal();
         }
 
-        function gantiHari(hari) {
-            hariAktif = hari;
-            renderTombolHari();
-            renderTabelJadwal();
+        function pilihStatusIzin(status) {
+            statusIzinPilihan = status;
+            ['btn-izin-mendesak', 'btn-izin-sakit', 'btn-izin-dinas'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.classList.remove('border-emerald-500', 'bg-emerald-500/20', 'text-white');
+                    el.classList.add('border-slate-800', 'bg-slate-950/60', 'text-slate-400');
+                }
+            });
+
+            let activeId = '';
+            if(status.includes('Mendesak')) activeId = 'btn-izin-mendesak';
+            else if(status.includes('Sakit')) activeId = 'btn-izin-sakit';
+            else if(status.includes('Dinas')) activeId = 'btn-izin-dinas';
+
+            const activeEl = document.getElementById(activeId);
+            if(activeEl) {
+                activeEl.classList.remove('border-slate-800', 'bg-slate-950/60', 'text-slate-400');
+                activeEl.classList.add('border-emerald-500', 'bg-emerald-500/20', 'text-white');
+            }
+        }
+
+        function kirimPesanIzin(event) {
+            event.preventDefault();
+            const nama = document.getElementById('izin-nama-guru').value;
+            const keterangan = document.getElementById('izin-keterangan').value;
+
+            const noWaAdmin = "6285864834929"; 
+            const pesan = `Halo Admin / Guru Piket,%0A%0ASaya ingin mengirimkan keterangan ketidakhadiran:%0A- Nama: *${nama}*%0A- Keterangan: *${statusIzinPilihan}*%0A- Catatan: ${keterangan}%0A%0AMohon dicatat, terima kasih.`;
+            
+            window.open(`https://wa.me/${noWaAdmin}?text=${pesan}`, '_blank');
+        }
+
+        function renderTabelRiwayat() {
+            const tbody = document.getElementById('tabel-riwayat-presensi');
+            const labelNama = document.getElementById('label-riwayat-nama');
+            if(!tbody) return;
+
+            if(labelNama) labelNama.innerText = guruAktif;
+            tbody.innerHTML = "";
+
+            const riwayatList = riwayatPresensiData[guruAktif] || [];
+            if(riwayatList.length > 0) {
+                riwayatList.forEach(item => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-800/40 transition-colors">
+                            <td class="p-3 font-semibold text-slate-300 text-xs">${item.tanggal}</td>
+                            <td class="p-3 font-bold text-white text-xs">${item.jamScan}</td>
+                            <td class="p-3 text-xs">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">${item.status}</span>
+                            </td>
+                            <td class="p-3 font-medium text-slate-400 text-xs">${item.metode}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-500 text-xs">Belum ada riwayat presensi tercatat untuk ${guruAktif}.</td></tr>`;
+            }
         }
 
         function gantiHariSemua(hari) {
             hariSemuaAktif = hari;
             renderTabHariSemua();
             renderTabelSemuaGuru();
-        }
-
-        function renderTombolHari() {
-            const container = document.getElementById('tab-hari');
-            if(!container) return;
-            container.innerHTML = "";
-
-            daftarHari.forEach(hari => {
-                const isActive = hari === hariAktif;
-                const btnClass = isActive 
-                    ? "bg-emerald-600 text-white shadow-md shadow-emerald-900/40 border border-emerald-500" 
-                    : "bg-slate-950 text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-slate-800";
-                
-                container.innerHTML += `
-                    <button onclick="gantiHari('${hari}')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${btnClass}">
-                        ${hari}
-                    </button>
-                `;
-            });
         }
 
         function renderTabHariSemua() {
@@ -293,34 +407,6 @@
                     </button>
                 `;
             });
-        }
-
-        function renderTabelJadwal() {
-            const tbody = document.getElementById('tabel-jadwal');
-            const labelHariAktif = document.getElementById('label-hari-aktif');
-            if(!tbody) return;
-
-            if(labelHariAktif) labelHariAktif.innerText = hariAktif;
-            tbody.innerHTML = "";
-            
-            const dataGuru = jadwalGuru[guruAktif] || {};
-            const listJadwal = dataGuru[hariAktif] || [];
-
-            if(listJadwal.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500 text-xs">Tidak ada jadwal mengajar pada hari ${hariAktif}.</td></tr>`;
-            } else {
-                listJadwal.forEach(item => {
-                    const row = `
-                        <tr class="hover:bg-slate-800/40 transition-colors">
-                            <td class="p-3 font-semibold text-slate-300 text-xs">${item.jam}</td>
-                            <td class="p-3 font-extrabold text-white text-xs">${item.kelas}</td>
-                            <td class="p-3 font-medium text-slate-200 text-xs">${item.mapel}</td>
-                            <td class="p-3 text-slate-400 font-medium text-xs">${item.ruang}</td>
-                        </tr>
-                    `;
-                    tbody.innerHTML += row;
-                });
-            }
         }
 
         function renderTabelSemuaGuru() {
@@ -346,7 +432,6 @@
                                 <td class="p-3 font-semibold text-slate-300 text-xs">${item.jam}</td>
                                 <td class="p-3 font-bold text-white text-xs">${item.kelas}</td>
                                 <td class="p-3 font-medium text-slate-200 text-xs">${item.mapel}</td>
-                                <td class="p-3 text-slate-400 font-medium text-xs">${item.ruang}</td>
                             </tr>
                         `;
                     });
@@ -354,7 +439,7 @@
             });
 
             if(!adaJadwal) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 text-xs">Tidak ada kegiatan mengajar dari seluruh guru pada hari ${hariSemuaAktif}.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-500 text-xs">Tidak ada kegiatan mengajar dari seluruh guru pada hari ${hariSemuaAktif}.</td></tr>`;
             }
         }
 
@@ -410,9 +495,17 @@
                     <i class="fa-solid fa-house text-sm"></i>
                     <span>Beranda / Portal Utama</span>
                 </button>
+                <button onclick="switchPage('riwayat')" class="w-full flex items-center space-x-3 p-3 rounded-xl text-slate-300 hover:bg-slate-800/60 transition-all text-left cursor-pointer">
+                    <i class="fa-solid fa-clock-rotate-left text-sm text-emerald-400"></i>
+                    <span>Riwayat Presensi Mandiri</span>
+                </button>
                 <button onclick="switchPage('semua-jadwal')" class="w-full flex items-center space-x-3 p-3 rounded-xl text-slate-300 hover:bg-slate-800/60 transition-all text-left cursor-pointer">
                     <i class="fa-solid fa-calendar-days text-sm text-teal-400"></i>
                     <span>Jadwal Semua Guru</span>
+                </button>
+                <button onclick="switchPage('izin')" class="w-full flex items-center space-x-3 p-3 rounded-xl text-slate-300 hover:bg-slate-800/60 transition-all text-left cursor-pointer">
+                    <i class="fa-brands fa-whatsapp text-sm text-emerald-400"></i>
+                    <span>Formulir Izin / Kontak Piket</span>
                 </button>
                 <button onclick="switchPage('informasi')" class="w-full flex items-center space-x-3 p-3 rounded-xl text-slate-300 hover:bg-slate-800/60 transition-all text-left cursor-pointer">
                     <i class="fa-solid fa-bullhorn text-sm text-amber-400"></i>
@@ -422,7 +515,7 @@
         </div>
 
         <div class="pt-4 border-t border-slate-800 text-center">
-            <span class="text-[10px] text-slate-500 font-medium">Portal Guru v3.0 &bull; 2026</span>
+            <span class="text-[10px] text-slate-500 font-medium">Portal Guru v3.5 &bull; 2026</span>
         </div>
     </aside>
 
@@ -448,8 +541,6 @@
 
     <!-- HALAMAN 1: UTAMA -->
     <main id="page-utama" class="max-w-4xl mx-auto px-4 py-5 space-y-5">
-
-        <!-- BANNER INFORMASI WEBSITE / PANDUAN PRESENSI -->
         <section class="bg-gradient-to-r from-emerald-950/80 via-slate-900 to-teal-950/80 backdrop-blur-xl rounded-2xl shadow-xl border border-emerald-500/30 p-4 sm:p-5 flex items-start space-x-3.5">
             <div class="bg-emerald-500/20 text-emerald-400 p-3 rounded-2xl border border-emerald-500/30 shrink-0">
                 <i class="fa-solid fa-circle-info text-base"></i>
@@ -460,12 +551,11 @@
                     <span class="text-[9px] bg-emerald-500 text-slate-950 font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Resmi</span>
                 </h3>
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    Website ini digunakan untuk verifikasi kehadiran harian tenaga pengajar. Pilih nama guru di bawah untuk menghasilkan token QR Code presensi yang valid untuk hari ini, serta pantau jadwal mengajar.
+                    Pilih nama guru di bawah untuk menampilkan QR Code token presensi. Jika berhalangan hadir, gunakan menu formulir izin di bagian bawah.
                 </p>
             </div>
         </section>
 
-        <!-- KARTU PENCARIAN GURU & QR CODE -->
         <section id="section-qrcode" class="bg-slate-900/70 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-800/80 p-5 sm:p-6 text-center relative overflow-hidden">
             <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
             <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -481,14 +571,14 @@
                     <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-2">
                         <i class="fa-solid fa-magnifying-glass text-emerald-400"></i> Cari Nama Guru
                     </span>
-                    <span id="label-guru-aktif" class="text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold px-3 py-1 rounded-full border border-emerald-500/30">Ashraf</span>
+                    <span id="label-guru-aktif" class="text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold px-3 py-1 rounded-full border border-emerald-500/30">H. Ashraf Nur Ramadhan S.sos</span>
                 </div>
                 
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                         <i class="fa-solid fa-user-pen text-xs"></i>
                     </span>
-                    <input type="text" id="search-guru-input" oninput="filterGuru(this.value)" placeholder="Ketik nama guru (misal: Ashraf, Tiara)..." class="w-full bg-slate-900 text-slate-200 placeholder-slate-500 text-xs rounded-xl pl-10 pr-4 py-3 border border-slate-800 focus:outline-none focus:border-emerald-500 transition-all shadow-inner font-medium">
+                    <input type="text" id="search-guru-input" oninput="filterGuru(this.value)" placeholder="Ketik nama guru..." class="w-full bg-slate-900 text-slate-200 placeholder-slate-500 text-xs rounded-xl pl-10 pr-4 py-3 border border-slate-800 focus:outline-none focus:border-emerald-500 transition-all shadow-inner font-medium">
                     
                     <div id="search-dropdown" class="hidden absolute left-0 right-0 mt-2 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-50 max-h-44 overflow-y-auto text-left divide-y divide-slate-800/50"></div>
                 </div>
@@ -505,44 +595,123 @@
                     </div>
 
                     <div class="mt-2 pt-2 border-t border-slate-800/80 text-center">
-                        <span id="badge-nama-guru" class="block font-extrabold text-sm text-white tracking-wide">Ashraf</span>
+                        <span id="badge-nama-guru" class="block font-extrabold text-sm text-white tracking-wide">H. Ashraf Nur Ramadhan S.sos</span>
                         <span id="qr-status" class="text-[10px] text-emerald-400 font-medium block mt-0.5">Token aktif untuk hari ini</span>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <!-- JADWAL MENGAJAR GURU TERKAIT -->
-        <section id="section-jadwal" class="bg-slate-900/70 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-800/80 p-5">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
-                <div class="flex items-center space-x-2.5">
-                    <div class="bg-teal-500/10 text-teal-400 p-2 rounded-xl border border-teal-500/20">
-                        <i class="fa-solid fa-calendar-days text-xs"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-extrabold text-sm text-white">Jadwal Mengajar Mandiri</h3>
-                        <p class="text-[10px] text-slate-400">Menampilkan jadwal untuk hari <span id="label-hari-aktif" class="text-emerald-400 font-bold">Senin</span></p>
-                    </div>
-                </div>
+            <div class="mt-5 flex flex-wrap justify-center gap-3">
+                <button onclick="switchPage('riwayat')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold transition-all border border-slate-700 inline-flex items-center gap-2 cursor-pointer shadow">
+                    <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> Lihat Riwayat Presensi
+                </button>
             </div>
 
-            <div id="tab-hari" class="flex flex-wrap gap-1.5 mb-4 p-1.5 bg-slate-950/60 rounded-2xl border border-slate-800/80"></div>
+            <div class="mt-4 pt-4 border-t border-slate-800/80 max-w-md mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-950/40 p-3 rounded-xl border border-slate-800/60">
+                <div class="text-left">
+                    <p class="text-xs font-bold text-white">Berhalangan Hadir / Izin?</p>
+                    <p class="text-[10px] text-slate-400">Kirimkan konfirmasi ketidakhadiran via WhatsApp.</p>
+                </div>
+                <button onclick="switchPage('izin')" class="w-full sm:w-auto bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0">
+                    <i class="fa-brands fa-whatsapp text-sm"></i> Form Pengajuan Izin
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- HALAMAN KHUSUS IZIN / KONTAK PIKET -->
+    <main id="page-izin" class="max-w-4xl mx-auto px-4 py-5 space-y-5 hidden">
+        <div class="flex items-center justify-between bg-slate-900/70 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-800/80 p-5">
+            <div class="flex items-center space-x-3">
+                <div class="bg-emerald-500/10 text-emerald-400 p-3 rounded-2xl border border-emerald-500/20">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-base font-extrabold text-white tracking-tight">Formulir Pengajuan Izin / Sakit</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Kirim pesan otomatis ke guru piket atau admin sekolah</p>
+                </div>
+            </div>
+            <button onclick="switchPage('utama')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-bold transition-all border border-slate-700 flex items-center gap-2 cursor-pointer">
+                <i class="fa-solid fa-arrow-left"></i> Kembali
+            </button>
+        </div>
+
+        <section class="bg-slate-900/70 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-800/80 p-5 sm:p-6">
+            <form onsubmit="kirimPesanIzin(event)" class="space-y-4 max-w-xl mx-auto">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">Nama Guru yang Berhalangan:</label>
+                    <input type="text" id="izin-nama-guru" readonly class="w-full bg-slate-950 text-slate-300 text-xs rounded-xl px-4 py-3 border border-slate-800 font-bold focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-2">Pilih Status Keterangan:</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <div id="btn-izin-mendesak" onclick="pilihStatusIzin('Izin (Keperluan Mendesak)')" class="p-3 bg-emerald-500/20 border-2 border-emerald-500 rounded-xl cursor-pointer text-center transition-all">
+                            <i class="fa-solid fa-triangle-exclamation text-emerald-400 text-sm mb-1 block"></i>
+                            <span class="text-xs font-bold text-white block">Izin Mendesak</span>
+                        </div>
+                        <div id="btn-izin-sakit" onclick="pilihStatusIzin('Sakit')" class="p-3 bg-slate-950/60 border-2 border-slate-800 rounded-xl cursor-pointer text-center transition-all hover:border-slate-700">
+                            <i class="fa-solid fa-bed-pulse text-amber-400 text-sm mb-1 block"></i>
+                            <span class="text-xs font-bold text-slate-400 block" id="text-sakit">Sakit</span>
+                        </div>
+                        <div id="btn-izin-dinas" onclick="pilihStatusIzin('Tugas Luar / Dinas')" class="p-3 bg-slate-950/60 border-2 border-slate-800 rounded-xl cursor-pointer text-center transition-all hover:border-slate-700">
+                            <i class="fa-solid fa-briefcase text-teal-400 text-sm mb-1 block"></i>
+                            <span class="text-xs font-bold text-slate-400 block">Tugas Dinas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">Catatan / Alasan Detail:</label>
+                    <textarea id="izin-keterangan" rows="4" placeholder="Tuliskan alasan atau keterangan lengkap di sini..." required class="w-full bg-slate-950 text-slate-200 placeholder-slate-500 text-xs rounded-xl p-4 border border-slate-800 focus:outline-none focus:border-emerald-500 font-medium"></textarea>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl text-xs font-extrabold transition-all shadow-lg shadow-emerald-900/40 flex items-center justify-center gap-2 cursor-pointer border border-emerald-500/50">
+                        <i class="fa-brands fa-whatsapp text-base"></i> Kirim Pesan Izin via WhatsApp
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <!-- HALAMAN RIWAYAT PRESENSI MANDIRI -->
+    <main id="page-riwayat" class="max-w-4xl mx-auto px-4 py-5 space-y-5 hidden">
+        <div class="flex items-center justify-between bg-slate-900/70 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-800/80 p-5">
+            <div class="flex items-center space-x-3">
+                <div class="bg-emerald-500/10 text-emerald-400 p-3 rounded-2xl border border-emerald-500/20">
+                    <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-base font-extrabold text-white tracking-tight">Riwayat Presensi Mandiri</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Catatan kehadiran historis berdasarkan guru yang dipilih</p>
+                </div>
+            </div>
+            <button onclick="switchPage('utama')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-bold transition-all border border-slate-700 flex items-center gap-2 cursor-pointer">
+                <i class="fa-solid fa-arrow-left"></i> Kembali
+            </button>
+        </div>
+
+        <section class="bg-slate-900/70 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-800/80 p-5">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                <span class="text-xs text-slate-400 font-medium">Menampilkan riwayat untuk:</span>
+                <span id="label-riwayat-nama" class="text-xs font-extrabold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20"></span>
+            </div>
 
             <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/40">
                 <table class="w-full text-left border-collapse text-xs">
                     <thead>
                         <tr class="bg-slate-900/90 text-slate-400 border-b border-slate-800 text-[10px] uppercase tracking-wider">
-                            <th class="p-3 font-bold">Jam</th>
-                            <th class="p-3 font-bold">Kelas</th>
-                            <th class="p-3 font-bold">Mata Pelajaran</th>
-                            <th class="p-3 font-bold">Ruang</th>
+                            <th class="p-3 font-bold">Tanggal</th>
+                            <th class="p-3 font-bold">Waktu Scan/Generate</th>
+                            <th class="p-3 font-bold">Status Kehadiran</th>
+                            <th class="p-3 font-bold">Metode</th>
                         </tr>
                     </thead>
-                    <tbody id="tabel-jadwal" class="divide-y divide-slate-800/60"></tbody>
+                    <tbody id="tabel-riwayat-presensi" class="divide-y divide-slate-800/60"></tbody>
                 </table>
             </div>
         </section>
-
     </main>
 
     <!-- HALAMAN 2: JADWAL KESELURUHAN GURU -->
@@ -577,7 +746,6 @@
                             <th class="p-3 font-bold">Jam</th>
                             <th class="p-3 font-bold">Kelas</th>
                             <th class="p-3 font-bold">Mata Pelajaran</th>
-                            <th class="p-3 font-bold">Ruang</th>
                         </tr>
                     </thead>
                     <tbody id="tabel-semua-jadwal" class="divide-y divide-slate-800/60"></tbody>
