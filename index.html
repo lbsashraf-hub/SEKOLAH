@@ -8,11 +8,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome untuk ikon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS Client SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
     <script>
+        // ==========================================
+        // KREDENSIAL SUPABASE (Sesuaikan dengan milik Anda)
+        // ==========================================
+        const SUPABASE_URL = 'https://uxutxeclfcvcvdiydmpw.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_UMV1G-z6vj5x0sRKlvZfVA_ap4qZFkA';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         const jadwalGuru = {
             "H. Ashraf Nur Ramadhan S.sos": {
                 "Sabtu": [
@@ -173,7 +182,6 @@
             }
         ];
 
-        let riwayatPresensiData = {};
         const daftarSemuaGuru = Object.keys(jadwalGuru);
         const daftarHari = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
         
@@ -357,30 +365,58 @@
             window.open(`https://wa.me/${noWaAdmin}?text=${pesan}`, '_blank');
         }
 
-        function renderTabelRiwayat() {
+        // Fungsi Riwayat dengan penanganan waktu yang disesuaikan
+        async function renderTabelRiwayat() {
             const tbody = document.getElementById('tabel-riwayat-presensi');
             const labelNama = document.getElementById('label-riwayat-nama');
             if(!tbody) return;
 
             if(labelNama) labelNama.innerText = guruAktif;
-            tbody.innerHTML = "";
+            tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400 text-xs">Memuat data dari database Supabase...</td></tr>`;
 
-            const riwayatList = riwayatPresensiData[guruAktif] || [];
-            if(riwayatList.length > 0) {
-                riwayatList.forEach(item => {
+            try {
+                const { data, error } = await _supabase
+                    .from('presensi_guru')
+                    .select('*')
+                    .eq('nama_guru', guruAktif)
+                    .order('tanggal', { ascending: false });
+
+                if (error) throw error;
+
+                tbody.innerHTML = "";
+
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500 text-xs">Belum ada riwayat presensi di database untuk guru ini.</td></tr>`;
+                    return;
+                }
+
+                data.forEach(item => {
+                    const statusAbsen = item.status || 'Hadir';
+                    const badgeColor = statusAbsen === 'Hadir' 
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' 
+                        : 'bg-amber-500/20 text-amber-300 border-amber-500/30';
+
+                    // Mengambil nilai waktu dari berbagai kemungkinan kolom database
+                    let waktuScan = item.jam_scan || item.jam || item.waktu || item.created_at || '-';
+                    
+                    if (waktuScan.includes('T')) {
+                        waktuScan = waktuScan.split('T')[1].substring(0, 8);
+                    }
+
                     tbody.innerHTML += `
                         <tr class="hover:bg-slate-800/40 transition-colors">
-                            <td class="p-3 font-semibold text-slate-300 text-xs">${item.tanggal}</td>
-                            <td class="p-3 font-bold text-white text-xs">${item.jamScan}</td>
+                            <td class="p-3 font-semibold text-slate-300 text-xs">${item.tanggal || '-'}</td>
+                            <td class="p-3 font-bold text-white text-xs">${waktuScan}</td>
                             <td class="p-3 text-xs">
-                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">${item.status}</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${badgeColor} border">${statusAbsen}</span>
                             </td>
-                            <td class="p-3 font-medium text-slate-400 text-xs">${item.metode}</td>
+                            <td class="p-3 font-medium text-slate-400 text-xs">${item.metode || 'QR Code'}</td>
                         </tr>
                     `;
                 });
-            } else {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-500 text-xs">Belum ada riwayat presensi tercatat untuk ${guruAktif}.</td></tr>`;
+            } catch (err) {
+                console.error("Gagal memuat riwayat Supabase:", err.message);
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-400 text-xs">Gagal terhubung ke database Supabase.</td></tr>`;
             }
         }
 
