@@ -126,6 +126,14 @@
                 ],                    
                 "Kamis": [
                     { jam: "11:00 - 12:00", kelas: "XI", mapel: "PJOK" }
+                ],
+                "Sabtu": [
+                    { jam: "10:00 - 14:00", kelas: "Gabungan (X, XI, XII)", mapel: "E-Sport (Ekskul)", isEkskul: true }
+                ]
+            },
+            "Hani": {
+                "Sabtu": [
+                    { jam: "10:00 - 14:00", kelas: "Gabungan (X, XI, XII)", mapel: "Desainer (Ekskul)", isEkskul: true }
                 ]
             },
             "Idan Nurjaman": {
@@ -208,7 +216,6 @@
             }
         ];
 
-        // Menggabungkan guru biasa dan guru piket ke dalam satu daftar pencarian
         const daftarSemuaGuru = Array.from(new Set([...Object.keys(jadwalGuru), ...daftarGuruPiket]));
         const daftarHari = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
         
@@ -398,7 +405,7 @@
         }
 
         // ==========================================
-        // RENDER JADWAL HARIAN (MENDUKUNG GURU PIKET)
+        // RENDER JADWAL HARIAN (PENGELOMPOKKAN KELAS EKSKUL)
         // ==========================================
         function renderJadwalHarianGuru(namaGuru) {
             const container = document.getElementById('container-jadwal-harian');
@@ -414,7 +421,6 @@
 
             let html = '';
 
-            // Jika guru tersebut juga memiliki jadwal mengajar biasa
             if (dataGuru) {
                 for (const [hari, listJadwal] of Object.entries(dataGuru)) {
                     if (!isPiket) {
@@ -423,13 +429,22 @@
                     
                     listJadwal.forEach(j => {
                         if (isPiket) {
-                            html += `<div class="mt-2 text-[10px] text-teal-400 font-bold">Jadwal Mengajar (${hari}):</div>`;
+                            html += `<div class="mt-2 text-[10px] text-teal-400 font-bold">Jadwal Mengajar/Ekskul (${hari}):</div>`;
                         }
+                        
+                        // Pengelompokan Label Kelas / Ekstrakurikuler Terstruktur
+                        let kelasLabel = '';
+                        if (j.isEkskul) {
+                            kelasLabel = `<span class="text-[10px] text-purple-300 bg-purple-500/20 border border-purple-500/30 px-2 py-0.5 rounded font-extrabold flex items-center gap-1 w-fit mt-1"><i class="fa-solid fa-users-rectangle text-[9px]"></i> Gabungan: Kelas X, XI, XII</span>`;
+                        } else {
+                            kelasLabel = `<span class="text-[10px] text-slate-300 block mt-0.5 font-medium">Kelas ${j.kelas}</span>`;
+                        }
+                        
                         html += `
                             <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-2.5 flex items-center justify-between text-xs">
                                 <div>
                                     <span class="font-bold text-white">${j.mapel}</span>
-                                    <span class="text-[10px] text-slate-400 block">Kelas ${j.kelas}</span>
+                                    ${kelasLabel}
                                 </div>
                                 <span class="text-[11px] font-semibold text-teal-300 bg-teal-500/10 px-2 py-1 rounded-lg">${j.jam}</span>
                             </div>
@@ -483,7 +498,7 @@
         }
 
         // ==========================================
-        // RENDER TABEL SEMUA JADWAL (MENDUKUNG GURU PIKET)
+        // RENDER TABEL SEMUA JADWAL (PENGELOMPOKKAN KELAS EKSKUL)
         // ==========================================
         function renderTabelSemuaGuru() {
             const tbody = document.getElementById('tabel-semua-jadwal-body');
@@ -491,7 +506,7 @@
 
             let rows = '';
             
-            // 1. Tampilkan Guru Piket yang bertugas pada hari tersebut
+            // 1. Tampilkan Guru Piket yang bertugas
             daftarGuruPiket.forEach(namaPiket => {
                 rows += `
                     <tr class="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors bg-amber-500/5">
@@ -503,17 +518,24 @@
                 `;
             });
 
-            // 2. Tampilkan Guru Mengajar Biasa
+            // 2. Tampilkan Guru Mengajar & Ekskul Terkelompok
             daftarSemuaGuru.forEach(nama => {
                 if (!daftarGuruPiket.includes(nama)) {
                     const jadwalHariIni = jadwalGuru[nama]?.[hariSemuaAktif];
                     if (jadwalHariIni && jadwalHariIni.length > 0) {
                         jadwalHariIni.forEach(j => {
+                            let kelasText = '';
+                            if (j.isEkskul) {
+                                kelasText = `<span class="text-[10px] text-purple-300 bg-purple-500/20 border border-purple-500/30 px-2 py-0.5 rounded font-extrabold inline-flex items-center gap-1"><i class="fa-solid fa-users-rectangle text-[9px]"></i> Gabungan (X, XI, XII)</span>`;
+                            } else {
+                                kelasText = `Kelas ${j.kelas}`;
+                            }
+
                             rows += `
                                 <tr class="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
                                     <td class="p-3 text-xs font-bold text-white">${nama}</td>
                                     <td class="p-3 text-xs text-slate-300">${j.mapel}</td>
-                                    <td class="p-3 text-xs text-slate-300">Kelas ${j.kelas}</td>
+                                    <td class="p-3 text-xs text-slate-300">${kelasText}</td>
                                     <td class="p-3 text-xs text-teal-300 font-semibold">${j.jam}</td>
                                 </tr>
                             `;
@@ -643,10 +665,9 @@
             </button>
         </div>
 
-        <!-- HALAMAN UTAMA: KARTU GURU & QR -->
+        <!-- HALAMAN UTAMA -->
         <div id="page-utama" class="space-y-4">
             
-            <!-- Kartu Informasi Portal Presensi -->
             <div class="bg-gradient-to-r from-emerald-950/40 to-slate-950/80 border border-emerald-500/30 rounded-2xl p-4 relative">
                 <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center gap-2">
@@ -662,7 +683,6 @@
                 </p>
             </div>
 
-            <!-- Kartu Utama Pemilihan Guru & QR -->
             <div class="bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4 text-center space-y-4 shadow-xl">
                 <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto">
                     <i class="fa-solid fa-id-card text-sm"></i>
@@ -684,13 +704,11 @@
                     <div id="search-dropdown" class="absolute left-0 right-0 mt-1 bg-slate-900 border border-slate-800 rounded-xl shadow-xl max-h-48 overflow-y-auto hidden z-30"></div>
                 </div>
 
-                <!-- Pilihan Guru Aktif Display (Readonly box) -->
                 <div class="bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-left flex items-center gap-2">
                     <i class="fa-solid fa-user-pen text-emerald-400 text-xs"></i>
                     <span id="badge-nama-guru" class="text-xs font-bold text-white truncate">Nama Guru</span>
                 </div>
 
-                <!-- QR Code Box -->
                 <div class="bg-slate-900 border border-emerald-500/40 rounded-2xl p-4 shadow-inner relative mt-3 pt-5">
                     <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
                         <span class="px-3 py-0.5 rounded-full text-[9px] font-bold bg-emerald-600 text-slate-950 shadow-sm border border-emerald-400 flex items-center gap-1 whitespace-nowrap">
@@ -705,12 +723,10 @@
                 </div>
             </div>
 
-            <!-- Tombol Lihat Riwayat Presensi -->
             <button onclick="switchPage('riwayat')" class="w-full bg-slate-950/60 hover:bg-slate-900 border border-slate-800/80 rounded-2xl py-3 px-4 flex items-center justify-center gap-2 text-xs font-bold text-slate-200 transition-all shadow-md">
                 <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> Lihat Riwayat Presensi
             </button>
 
-            <!-- KARTU MENU CEPAT MENUJU FORMAT IZIN -->
             <div class="bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4 space-y-2.5 text-left">
                 <div>
                     <h4 class="text-xs font-bold text-white">Berhalangan Hadir / Izin?</h4>
@@ -721,22 +737,12 @@
                 </button>
             </div>
 
-            <!-- Jadwal Hari Ini untuk Guru Terpilih -->
             <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-3.5">
                 <h3 class="text-xs font-bold text-slate-200 mb-2.5 flex items-center gap-1.5">
                     <i class="fa-solid fa-calendar-week text-emerald-400"></i> Jadwal Mengajar & Piket Guru
                 </h3>
                 <div id="container-jadwal-harian" class="space-y-2 max-h-36 overflow-y-auto pr-1"></div>
             </div>
-        </div>
-
-        <!-- HALAMAN INFORMASI -->
-        <div id="page-informasi" class="space-y-3 hidden">
-            <div class="flex items-center justify-between mb-2">
-                <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Informasi Sekolah</h2>
-                <button onclick="switchPage('utama')" class="text-[10px] text-emerald-400 hover:underline"><i class="fa-solid fa-arrow-left mr-1"></i> Kembali</button>
-            </div>
-            <div id="container-informasi" class="space-y-3"></div>
         </div>
 
         <!-- HALAMAN SEMUA JADWAL -->
