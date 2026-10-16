@@ -394,23 +394,36 @@
         }
 
         function kirimPesanIzin(event) {
-    event.preventDefault();
-    
+    if (event) event.preventDefault();
+
     const namaInput = document.getElementById('izin-nama-guru');
     const nama = (namaInput && namaInput.value.trim() !== "") ? namaInput.value : guruAktif;
-    const keterangan = document.getElementById('izin-keterangan').value;
+    const keteranganInput = document.getElementById('izin-keterangan');
+    const keterangan = keteranganInput ? keteranganInput.value : '';
 
     const noWaAdmin = "6285864834929"; 
-    
-    // Format teks pesan
-    const teksPesan = `Halo Admin / Guru Piket,\n\nSaya ingin mengirimkan keterangan ketidakhadiran:\n- Nama: *${nama}*\n- Keterangan: *${statusIzinPilihan}*\n- Catatan: ${keterangan}\n\nMohon dicatat, terima kasih.`;
-    
+
+    // Format teks rapi menggunakan enter langsung di dalam backtick
+    const teksPesan = `Halo Admin / Guru Piket,
+
+Saya ingin mengirimkan keterangan ketidakhadiran:
+- Nama: *${nama}*
+- Keterangan: *${statusIzinPilihan}*
+- Catatan: ${keterangan}
+
+Mohon dicatat, terima kasih.`;
+
     const encodedPesan = encodeURIComponent(teksPesan);
     
-    // Gunakan URL api.whatsapp.com dan navigasi langsung via window.location.href agar tidak diblokir browser HP
-    const urlWa = `https://api.whatsapp.com/send?phone=${noWaAdmin}&text=${encodedPesan}`;
-    
-    window.location.href = urlWa;
+    // Gunakan whatsapp:// agar langsung memicu pembukaan aplikasi WhatsApp di HP
+    const urlWa = `whatsapp://send?phone=${noWaAdmin}&text=${encodedPesan}`;
+
+    // Fallback jika dibuka lewat browser komputer (Web WhatsApp)
+    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        window.location.href = urlWa;
+    } else {
+        window.open(`https://web.whatsapp.com/send?phone=${noWaAdmin}&text=${encodedPesan}`, '_blank');
+    }
 }
 
         function renderJadwalHarianGuru(namaGuru) {
