@@ -403,27 +403,16 @@
 
     const noWaAdmin = "6285864834929"; 
 
-    // Format teks rapi menggunakan enter langsung di dalam backtick
-    const teksPesan = `Halo Admin / Guru Piket,
-
-Saya ingin mengirimkan keterangan ketidakhadiran:
-- Nama: *${nama}*
-- Keterangan: *${statusIzinPilihan}*
-- Catatan: ${keterangan}
-
-Mohon dicatat, terima kasih.`;
+    // Format teks pesan tanpa karakter escape yang error
+    const teksPesan = "Halo Admin / Guru Piket,\n\nSaya ingin mengirimkan keterangan ketidakhadiran:\n- Nama: *" + nama + "*\n- Keterangan: *" + statusIzinPilihan + "*\n- Catatan: " + keterangan + "\n\nMohon dicatat, terima kasih.";
 
     const encodedPesan = encodeURIComponent(teksPesan);
     
-    // Gunakan whatsapp:// agar langsung memicu pembukaan aplikasi WhatsApp di HP
-    const urlWa = `whatsapp://send?phone=${noWaAdmin}&text=${encodedPesan}`;
+    // Menggunakan URL resmi api.whatsapp.com dengan window.location.href
+    const urlWa = "https://api.whatsapp.com/send?phone=" + noWaAdmin + "&text=" + encodedPesan;
 
-    // Fallback jika dibuka lewat browser komputer (Web WhatsApp)
-    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-        window.location.href = urlWa;
-    } else {
-        window.open(`https://web.whatsapp.com/send?phone=${noWaAdmin}&text=${encodedPesan}`, '_blank');
-    }
+    // Eksekusi perpindahan halaman ke WhatsApp
+    window.location.href = urlWa;
 }
 
         function renderJadwalHarianGuru(namaGuru) {
