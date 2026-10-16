@@ -403,17 +403,21 @@
 
     const noWaAdmin = "6285864834929"; 
 
-    // Format teks pesan tanpa karakter escape yang error
     const teksPesan = "Halo Admin / Guru Piket,\n\nSaya ingin mengirimkan keterangan ketidakhadiran:\n- Nama: *" + nama + "*\n- Keterangan: *" + statusIzinPilihan + "*\n- Catatan: " + keterangan + "\n\nMohon dicatat, terima kasih.";
 
     const encodedPesan = encodeURIComponent(teksPesan);
-    
-    // Menggunakan URL resmi api.whatsapp.com dengan window.location.href
     const urlWa = "https://api.whatsapp.com/send?phone=" + noWaAdmin + "&text=" + encodedPesan;
 
-    // Eksekusi perpindahan halaman ke WhatsApp
-    window.location.href = urlWa;
+    // Cara paling aman untuk HP: Buat elemen <a> virtual dan klik secara otomatis
+    const link = document.createElement('a');
+    link.href = urlWa;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
+
 
         function renderJadwalHarianGuru(namaGuru) {
             const container = document.getElementById('container-jadwal-harian');
