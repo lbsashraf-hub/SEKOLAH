@@ -395,85 +395,44 @@
 
         function kirimPesanIzin(event) {
             event.preventDefault();
-            const nama = document.getElementById('izin-nama-guru').value;
+            const nama = document.getElementById('izin-nama-guru').value || guruAktif;
             const keterangan = document.getElementById('izin-keterangan').value;
 
             const noWaAdmin = "6285864834929"; 
-            const pesan = `Halo Admin / Guru Piket,%0A%0ASaya ingin mengirimkan keterangan ketidakhadiran:%0A- Nama: *${nama}*%0A- Keterangan: *${statusIzinPilihan}*%0A- Catatan: ${keterangan}%0A%0AMohon dicatat, terima kasih.`;
+            const teksPesan = `Halo Admin / Guru Piket,\n\nSaya ingin mengirimkan keterangan ketidakhadiran:\n- Nama: *${nama}*\n- Keterangan: *${statusIzinPilihan}*\n- Catatan: ${keterangan}\n\nMohon dicatat, terima kasih.`;
             
-            window.open(`https://wa.me/${noWaAdmin}?text=${pesan}`, '_blank');
+            const encodedPesan = encodeURIComponent(teksPesan);
+            window.open(`https://wa.me/${noWaAdmin}?text=${encodedPesan}`, '_blank');
         }
 
-        // ==========================================
-        // RENDER JADWAL HARIAN (PENGELOMPOKKAN KELAS EKSKUL)
-        // ==========================================
         function renderJadwalHarianGuru(namaGuru) {
             const container = document.getElementById('container-jadwal-harian');
             if (!container) return;
 
-            const dataGuru = jadwalGuru[namaGuru];
-            const isPiket = daftarGuruPiket.includes(namaGuru);
-
-            if (!dataGuru && !isPiket) {
-                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-3">Tidak ada jadwal tercatat.</p>`;
+            const jadwalHariIni = jadwalGuru[namaGuru]?.[hariSemuaAktif];
+            
+            if (daftarGuruPiket.includes(namaGuru)) {
+                container.innerHTML = `
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs">
+                        <span class="text-amber-300 font-bold"><i class="fa-solid fa-shield-halved mr-1.5"></i> Guru Piket Hari Ini (${hariSemuaAktif})</span>
+                        <span class="text-slate-400 font-semibold">${jamPiketHarian}</span>
+                    </div>
+                `;
                 return;
             }
 
-            let html = '';
-
-            if (dataGuru) {
-                for (const [hari, listJadwal] of Object.entries(dataGuru)) {
-                    if (!isPiket) {
-                        html += `<div class="mb-3 last:mb-0"><p class="text-[11px] font-bold text-emerald-400 mb-1">${hari}</p><div class="space-y-1.5">`;
-                    }
-                    
-                    listJadwal.forEach(j => {
-                        if (isPiket) {
-                            html += `<div class="mt-2 text-[10px] text-teal-400 font-bold">Jadwal Mengajar/Ekskul (${hari}):</div>`;
-                        }
-                        
-                        // Pengelompokan Label Kelas / Ekstrakurikuler Terstruktur
-                        let kelasLabel = '';
-                        if (j.isEkskul) {
-                            kelasLabel = `<span class="text-[10px] text-purple-300 bg-purple-500/20 border border-purple-500/30 px-2 py-0.5 rounded font-extrabold flex items-center gap-1 w-fit mt-1"><i class="fa-solid fa-users-rectangle text-[9px]"></i> Gabungan: Kelas X, XI, XII</span>`;
-                        } else {
-                            kelasLabel = `<span class="text-[10px] text-slate-300 block mt-0.5 font-medium">Kelas ${j.kelas}</span>`;
-                        }
-                        
-                        html += `
-                            <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-2.5 flex items-center justify-between text-xs">
-                                <div>
-                                    <span class="font-bold text-white">${j.mapel}</span>
-                                    ${kelasLabel}
-                                </div>
-                                <span class="text-[11px] font-semibold text-teal-300 bg-teal-500/10 px-2 py-1 rounded-lg">${j.jam}</span>
-                            </div>
-                        `;
-                    });
-                    
-                    if (!isPiket) {
-                        html += `</div></div>`;
-                    }
-                }
+            if (!jadwalHariIni || jadwalHariIni.length === 0) {
+                container.innerHTML = `<p class="text-[11px] text-slate-500 text-center py-2">Tidak ada jadwal mengajar pada hari ${hariSemuaAktif}.</p>`;
+                return;
             }
 
-            container.innerHTML = html;
-        }
-
-        function renderInformasi() {
-            const container = document.getElementById('container-informasi');
-            if(!container) return;
-
-            container.innerHTML = daftarInformasi.map(info => `
-                <div class="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-4 shadow-lg">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${info.warnaKategori}">${info.kategori}</span>
-                        <span class="text-[10px] text-slate-500">${info.tanggal}</span>
+            container.innerHTML = jadwalHariIni.map(j => `
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs">
+                    <div>
+                        <span class="font-bold text-white">${j.mapel}</span>
+                        <span class="text-[10px] text-slate-400 ml-1.5">(${j.kelas})</span>
                     </div>
-                    <h3 class="text-sm font-bold text-white mb-1 flex items-center gap-2">
-                        <i class="fa-solid ${info.ikon} text-emerald-400"></i> ${info.judul}
-                    </h3>
-                    <p class="text-xs text-slate-300 leading-relaxed">${info.isi}</p>
+                    <span class="text-teal-400 font-semibold">${j.jam}</span>
                 </div>
             `).join('');
         }
@@ -485,9 +444,10 @@
             container.innerHTML = daftarHari.map(hari => {
                 const isActive = hari === hariSemuaAktif;
                 const activeClass = isActive 
-                    ? 'bg-emerald-500 text-slate-950 font-extrabold shadow-lg shadow-emerald-900/30' 
-                    : 'bg-slate-900 text-slate-400 border border-slate-800 hover:bg-slate-800';
-                return `<button onclick="pilihHariSemua('${hari}')" class="px-4 py-2 rounded-xl text-xs transition-all ${activeClass}">${hari}</button>`;
+                    ? 'bg-emerald-500 text-slate-950 font-extrabold border-emerald-400 shadow-md' 
+                    : 'bg-slate-900 text-slate-400 hover:text-white border-slate-800';
+                
+                return `<button onclick="pilihHariSemua('${hari}')" class="px-3 py-1.5 rounded-xl text-[11px] border transition-all whitespace-nowrap ${activeClass}">${hari}</button>`;
             }).join('');
         }
 
@@ -497,16 +457,22 @@
             renderTabelSemuaGuru();
         }
 
-        // ==========================================
-        // RENDER TABEL SEMUA JADWAL (PENGELOMPOKKAN KELAS EKSKUL)
-        // ==========================================
+        function renderTabHariInformasi() {
+            // Placeholder jika diperlukan untuk tab informasi
+        }
+
+        function renderInformasi() {
+            const container = document.getElementById('container-informasi');
+            if(!container) return;
+            // Render daftar informasi jika ada elemennya
+        }
+
         function renderTabelSemuaGuru() {
             const tbody = document.getElementById('tabel-semua-jadwal-body');
             if(!tbody) return;
 
             let rows = '';
             
-            // 1. Tampilkan Guru Piket yang bertugas
             daftarGuruPiket.forEach(namaPiket => {
                 rows += `
                     <tr class="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors bg-amber-500/5">
@@ -518,7 +484,6 @@
                 `;
             });
 
-            // 2. Tampilkan Guru Mengajar & Ekskul Terkelompok
             daftarSemuaGuru.forEach(nama => {
                 if (!daftarGuruPiket.includes(nama)) {
                     const jadwalHariIni = jadwalGuru[nama]?.[hariSemuaAktif];
