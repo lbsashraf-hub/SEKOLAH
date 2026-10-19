@@ -261,6 +261,7 @@
             const pageInformasi = document.getElementById('page-informasi');
             const pageSemuaJadwal = document.getElementById('page-semua-jadwal');
             const pageRiwayat = document.getElementById('page-riwayat');
+            const pageJurnal = document.getElementById('page-jurnal');
             
             const sidebar = document.getElementById('sidebar-menu');
             if(sidebar && !sidebar.classList.contains('translate-x-full')) {
@@ -272,6 +273,7 @@
                 if(pageInformasi) pageInformasi.classList.add('hidden');
                 if(pageSemuaJadwal) pageSemuaJadwal.classList.add('hidden');
                 if(pageRiwayat) pageRiwayat.classList.add('hidden');
+                if(pageJurnal) pageJurnal.classList.add('hidden');
 
                 if (pageId === 'informasi') {
                     if(pageInformasi) pageInformasi.classList.remove('hidden');
@@ -282,6 +284,12 @@
                 } else if (pageId === 'riwayat') {
                     if(pageRiwayat) pageRiwayat.classList.remove('hidden');
                     renderTabelRiwayat();
+                } else if (pageId === 'jurnal') {
+                    if(pageJurnal) {
+                        pageJurnal.classList.remove('hidden');
+                        const inputNamaJurnal = document.getElementById('jurnal-nama-guru');
+                        if(inputNamaJurnal) inputNamaJurnal.value = guruAktif;
+                    }
                 } else {
                     if(pageUtama) pageUtama.classList.remove('hidden');
                 }
@@ -364,8 +372,58 @@
         }
 
         // ==========================================
-        // FITUR REMINDER / PENGINGAT JADWAL MENGAJAR
+        // SIMPAN JURNAL KE SUPABASE
         // ==========================================
+        async function simpanJurnalMengajar(event) {
+            event.preventDefault();
+
+            const namaGuru = document.getElementById('jurnal-nama-guru').value;
+            const kelas = document.getElementById('jurnal-kelas').value;
+            const mapel = document.getElementById('jurnal-mapel').value;
+            const materi = document.getElementById('jurnal-materi').value;
+            const catatan = document.getElementById('jurnal-catatan').value;
+
+            if (!kelas || !mapel || !materi) {
+                alert("Harap lengkapi Kelas, Mata Pelajaran, dan Materi Pembelajaran!");
+                return;
+            }
+
+            const btnSimpan = document.getElementById('btn-simpan-jurnal');
+            btnSimpan.innerText = "Menyimpan...";
+            btnSimpan.disabled = true;
+
+            try {
+                const { data, error } = await _supabase
+                    .from('jurnal_mengajar') // Pastikan tabel ini sudah dibuat di Supabase Anda
+                    .insert([
+                        { 
+                            nama_guru: namaGuru, 
+                            kelas: kelas, 
+                            mapel: mapel, 
+                            materi: materi, 
+                            catatan: catatan,
+                            tanggal: new Date().toISOString()
+                        }
+                    ]);
+
+                if (error) {
+                    throw error;
+                }
+
+                alert("Berhasil! Jurnal mengajar telah disimpan ke database.");
+                document.getElementById('form-jurnal').reset();
+                document.getElementById('jurnal-nama-guru').value = guruAktif;
+                switchPage('utama');
+
+            } catch (err) {
+                console.error("Gagal menyimpan:", err.message);
+                alert("Gagal menyimpan ke database Supabase: " + err.message);
+            } finally {
+                btnSimpan.innerText = "Simpan Jurnal KBM";
+                btnSimpan.disabled = false;
+            }
+        }
+
         function renderReminderMengajar(namaGuru) {
             const reminderContainer = document.getElementById('reminder-mengajar-container');
             if (!reminderContainer) return;
@@ -389,7 +447,6 @@
             }
 
             if (jadwalHariIni && jadwalHariIni.length > 0) {
-                // Ambil jadwal pertama hari ini sebagai pengingat utama
                 const nextJadwal = jadwalHariIni[0];
                 reminderContainer.innerHTML = `
                     <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-3 flex items-center gap-3 text-xs">
@@ -569,6 +626,9 @@
                 <button onclick="switchPage('utama')" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 flex items-center gap-2.5 transition-colors">
                     <i class="fa-solid fa-house w-4 text-center"></i> Beranda Utama
                 </button>
+                <button onclick="switchPage('jurnal')" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 flex items-center gap-2.5 transition-colors">
+                    <i class="fa-solid fa-book-open w-4 text-center"></i> Jurnal Mengajar
+                </button>
                 <button onclick="switchPage('informasi')" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 flex items-center gap-2.5 transition-colors">
                     <i class="fa-solid fa-bullhorn w-4 text-center"></i> Pengumuman & Info
                 </button>
@@ -633,6 +693,12 @@
                 <p id="qr-status" class="text-[10px] text-slate-400 mt-0.5">Token aktif untuk hari ini</p>
             </div>
 
+            <!-- Tombol Pintasan ke Jurnal Mengajar -->
+            <button onclick="switchPage('jurnal')" class="w-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-emerald-400 font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-between transition-colors shadow-md">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-book-open text-sm"></i> Isi Jurnal Mengajar Hari Ini</span>
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+            </button>
+
             <!-- Jadwal Harian -->
             <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-3.5">
                 <h3 class="text-xs font-bold text-slate-200 mb-2.5 flex items-center gap-1.5">
@@ -642,7 +708,47 @@
             </div>
         </div>
 
-        <!-- HALAMAN INFORMASI -->
+        <!-- HALAMAN JURNAL MENGAJAR -->
+        <div id="page-jurnal" class="space-y-3 hidden">
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Form Jurnal Mengajar</h2>
+                <button onclick="switchPage('utama')" class="text-[10px] text-emerald-400 hover:underline"><i class="fa-solid fa-arrow-left mr-1"></i> Kembali</button>
+            </div>
+            
+            <form id="form-jurnal" onsubmit="simpanJurnalMengajar(event)" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
+                <div>
+                    <label class="block text-[10px] font-semibold text-slate-400 mb-1">Nama Guru:</label>
+                    <input type="text" id="jurnal-nama-guru" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold text-slate-400 mb-1">Kelas:</label>
+                    <select id="jurnal-kelas" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                        <option value="">-- Pilih Kelas --</option>
+                        <option value="X">Kelas X</option>
+                        <option value="XI">Kelas XI</option>
+                        <option value="XII">Kelas XII</option>
+                        <option value="Gabungan">Gabungan (X, XI, XII)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold text-slate-400 mb-1">Mata Pelajaran / Kegiatan:</label>
+                    <input type="text" id="jurnal-mapel" required placeholder="Contoh: Sejarah / Ekskul Desain" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold text-slate-400 mb-1">Materi / Pokok Bahasan:</label>
+                    <textarea id="jurnal-materi" rows="2" required placeholder="Tuliskan ringkasan materi hari ini..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold text-slate-400 mb-1">Catatan / Kendala Kelas (Opsional):</label>
+                    <textarea id="jurnal-catatan" rows="2" placeholder="Catatan khusus atau keaktifan siswa..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+                </div>
+
+                <button type="submit" id="btn-simpan-jurnal" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition-all shadow-lg shadow-emerald-500/20">
+                    Simpan Jurnal KBM
+                </button>
+            </form>
+        </div>
+<!-- HALAMAN INFORMASI -->
         <div id="page-informasi" class="space-y-3 hidden">
             <div class="flex items-center justify-between mb-2">
                 <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Pengumuman & Informasi</h2>
