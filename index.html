@@ -393,6 +393,9 @@
             }
         }
 
+        // ====================================================
+        // FUNGSI KIRIM WHATSAPP DENGAN PROTOKOL DIPERBAIKI
+        // ====================================================
         function kirimPesanIzin(e) {
             if (e && e.preventDefault) e.preventDefault();
 
@@ -412,10 +415,17 @@
             const teksPesan = `Halo Admin / Guru Piket,\n\nSaya ingin mengirimkan keterangan ketidakhadiran:\n- Nama: *${nama}*\n- Keterangan: *${statusIzinPilihan}*\n- Catatan: ${keterangan}\n\nMohon dicatat, terima kasih.`;
 
             const encodedPesan = encodeURIComponent(teksPesan);
-            const urlWa = `https://api.whatsapp.com/send?phone=${noWaAdmin}&text=${encodedPesan}`;
 
-            // Buka WhatsApp di tab/aplikasi baru
-            window.open(urlWa, '_blank');
+            // Deteksi Mobile Browser
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                // Protokol langsung aplikasi WA di Ponsel
+                window.location.href = `whatsapp://send?phone=${noWaAdmin}&text=${encodedPesan}`;
+            } else {
+                // Web WA untuk komputer/laptop
+                window.open(`https://web.whatsapp.com/send?phone=${noWaAdmin}&text=${encodedPesan}`, '_blank');
+            }
         }
 
         function renderJadwalHarianGuru(namaGuru) {
@@ -683,7 +693,7 @@
             </div>
         </div>
 
-        <!-- HALAMAN RIWAYAT -->
+         <!-- HALAMAN RIWAYAT -->
         <div id="page-riwayat" class="space-y-3 hidden">
             <div class="flex items-center justify-between mb-2">
                 <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Riwayat: <span id="label-riwayat-nama" class="text-emerald-400"></span></h2>
@@ -705,7 +715,8 @@
                 </div>
             </div>
         </div>
-<!-- HALAMAN IZIN -->
+
+        <!-- HALAMAN IZIN -->
         <div id="page-izin" class="space-y-3 hidden">
             <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-3 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
