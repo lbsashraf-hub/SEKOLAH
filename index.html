@@ -222,7 +222,6 @@
         let today;
         let guruAktif = "H. Ashraf Nur Ramadhan S.sos";
         let hariSemuaAktif = "Senin";
-        let statusIzinPilihan = "Izin Mendesak";
 
         window.addEventListener('DOMContentLoaded', () => {
             today = new Date();
@@ -262,7 +261,6 @@
             const pageInformasi = document.getElementById('page-informasi');
             const pageSemuaJadwal = document.getElementById('page-semua-jadwal');
             const pageRiwayat = document.getElementById('page-riwayat');
-            const pageIzin = document.getElementById('page-izin');
             
             const sidebar = document.getElementById('sidebar-menu');
             if(sidebar && !sidebar.classList.contains('translate-x-full')) {
@@ -274,7 +272,6 @@
                 if(pageInformasi) pageInformasi.classList.add('hidden');
                 if(pageSemuaJadwal) pageSemuaJadwal.classList.add('hidden');
                 if(pageRiwayat) pageRiwayat.classList.add('hidden');
-                if(pageIzin) pageIzin.classList.add('hidden');
 
                 if (pageId === 'informasi') {
                     if(pageInformasi) pageInformasi.classList.remove('hidden');
@@ -285,12 +282,6 @@
                 } else if (pageId === 'riwayat') {
                     if(pageRiwayat) pageRiwayat.classList.remove('hidden');
                     renderTabelRiwayat();
-                } else if (pageId === 'izin') {
-                    if(pageIzin) {
-                        pageIzin.classList.remove('hidden');
-                        const inputNamaIzin = document.getElementById('izin-nama-guru');
-                        if(inputNamaIzin) inputNamaIzin.value = guruAktif;
-                    }
                 } else {
                     if(pageUtama) pageUtama.classList.remove('hidden');
                 }
@@ -369,50 +360,6 @@
             if(qrStatus) qrStatus.innerText = `Token aktif untuk hari ini`;
             
             renderJadwalHarianGuru(namaGuru);
-        }
-
-        function pilihStatusIzin(status) {
-            statusIzinPilihan = status;
-            ['btn-izin-mendesak', 'btn-izin-sakit', 'btn-izin-dinas'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) {
-                    el.classList.remove('border-emerald-500', 'bg-emerald-500/20', 'text-white');
-                    el.classList.add('border-slate-800', 'bg-slate-950/60', 'text-slate-400');
-                }
-            });
-
-            let activeId = '';
-            if(status.includes('Mendesak')) activeId = 'btn-izin-mendesak';
-            else if(status.includes('Sakit')) activeId = 'btn-izin-sakit';
-            else if(status.includes('Dinas')) activeId = 'btn-izin-dinas';
-
-            const activeEl = document.getElementById(activeId);
-            if(activeEl) {
-                activeEl.classList.remove('border-slate-800', 'bg-slate-950/60', 'text-slate-400');
-                activeEl.classList.add('border-emerald-500', 'bg-emerald-500/20', 'text-white');
-            }
-        }
-
-        // ====================================================
-        // LINK TAUTAN MURNI TANPA BLOKIR
-        // ====================================================
-        function buatLinkWa(el) {
-            const namaInput = document.getElementById('izin-nama-guru');
-            const nama = (namaInput && namaInput.value.trim() !== "") ? namaInput.value : guruAktif;
-            const keteranganInput = document.getElementById('izin-keterangan');
-            const keterangan = keteranganInput ? keteranganInput.value : '';
-
-            if (!keterangan.trim()) {
-                alert("Harap isi catatan / alasan detail terlebih dahulu.");
-                el.href = "javascript:void(0);";
-                return;
-            }
-
-            const noWaAdmin = "6285864834929"; 
-            const teksPesan = `Halo Admin / Guru Piket,%0A%0ASaya ingin mengirimkan keterangan ketidakhadiran:%0A- Nama: *${nama}*%0A- Keterangan: *${statusIzinPilihan}*%0A- Catatan: ${keterangan}%0A%0AMohon dicatat, terima kasih.`;
-
-            // Langsung pasang link tujuan WhatsApp murni ke tag <a>
-            el.href = `https://wa.me/${noWaAdmin}?text=${teksPesan}`;
         }
 
         function renderJadwalHarianGuru(namaGuru) {
@@ -584,9 +531,6 @@
                 <button onclick="switchPage('riwayat')" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 flex items-center gap-2.5 transition-colors">
                     <i class="fa-solid fa-clock-rotate-left w-4 text-center"></i> Riwayat Presensi
                 </button>
-                <button onclick="switchPage('izin')" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 flex items-center gap-2.5 transition-colors">
-                    <i class="fa-brands fa-whatsapp w-4 text-center"></i> Form Izin / Sakit
-                </button>
             </nav>
         </div>
         <div class="pt-4 border-t border-slate-800 text-[10px] text-slate-500 text-center">
@@ -700,54 +644,6 @@
                         <tbody id="tabel-riwayat-presensi"></tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-
-        <!-- HALAMAN IZIN -->
-        <div id="page-izin" class="space-y-3 hidden">
-            <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-3 flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                        <i class="fa-brands fa-whatsapp text-sm"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xs font-bold text-white">Formulir Pengajuan Izin / Sakit</h3>
-                        <p class="text-[9px] text-slate-400">Kirim pesan otomatis ke guru piket atau admin sekolah</p>
-                    </div>
-                </div>
-                <button onclick="switchPage('utama')" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-[10px] font-bold text-slate-300 hover:text-white flex items-center gap-1">
-                    <i class="fa-solid fa-arrow-left"></i> Kembali
-                </button>
-            </div>
-
-            <div class="space-y-3 pt-1">
-                <div>
-                    <label class="block text-[10px] font-semibold text-slate-400 mb-1">Nama Guru yang Berhalangan:</label>
-                    <input type="text" id="izin-nama-guru" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-semibold text-slate-400 mb-1">Pilih Status Keterangan:</label>
-                    <div class="space-y-2">
-                        <button type="button" onclick="pilihStatusIzin('Izin Mendesak')" id="btn-izin-mendesak" class="w-full py-3 px-3 rounded-xl text-xs font-bold border border-emerald-500 bg-emerald-500/20 text-white flex items-center justify-center gap-2 transition-all">
-                            <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm"></i> Izin Mendesak
-                        </button>
-                        <button type="button" onclick="pilihStatusIzin('Sakit')" id="btn-izin-sakit" class="w-full py-3 px-3 rounded-xl text-xs font-bold border border-slate-800 bg-slate-950/60 text-slate-400 flex items-center justify-center gap-2 transition-all">
-                            <i class="fa-solid fa-bed-pulse text-amber-400 text-sm"></i> Sakit
-                        </button>
-                        <button type="button" onclick="pilihStatusIzin('Tugas Dinas')" id="btn-izin-dinas" class="w-full py-3 px-3 rounded-xl text-xs font-bold border border-slate-800 bg-slate-950/60 text-slate-400 flex items-center justify-center gap-2 transition-all">
-                            <i class="fa-solid fa-briefcase text-emerald-400 text-sm"></i> Tugas Dinas
-                        </button>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-semibold text-slate-400 mb-1">Catatan / Alasan Detail:</label>
-                    <textarea id="izin-keterangan" rows="3" placeholder="Tuliskan alasan atau keterangan lengkap di sini..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-emerald-500 resize-none"></textarea>
-                </div>
-                
-                <!-- MENGGUNAKAN TAG LINK HTML MURNI YANG DI-STYLING SEPERTI TOMBOL -->
-                <a href="#" onclick="buatLinkWa(this)" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-2 no-underline block text-center">
-                    <i class="fa-brands fa-whatsapp text-sm"></i> Kirim Laporan via WhatsApp
-                </a>
             </div>
         </div>
 
