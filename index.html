@@ -394,7 +394,7 @@
         }
 
         // ====================================================
-        // FUNGSI KIRIM WHATSAPP DENGAN PROTOKOL DIPERBAIKI
+        // FUNGSI KIRIM WHATSAPP TERHUBUNG LANGSUNG
         // ====================================================
         function kirimPesanIzin(e) {
             if (e && e.preventDefault) e.preventDefault();
@@ -411,21 +411,14 @@
 
             const noWaAdmin = "6285864834929"; 
 
-            // Format teks pesan
-            const teksPesan = `Halo Admin / Guru Piket,\n\nSaya ingin mengirimkan keterangan ketidakhadiran:\n- Nama: *${nama}*\n- Keterangan: *${statusIzinPilihan}*\n- Catatan: ${keterangan}\n\nMohon dicatat, terima kasih.`;
+            // Format teks pesan (%0A untuk ganti baris)
+            const teksPesan = `Halo Admin / Guru Piket,%0A%0ASaya ingin mengirimkan keterangan ketidakhadiran:%0A- Nama: *${nama}*%0A- Keterangan: *${statusIzinPilihan}*%0A- Catatan: ${keterangan}%0A%0AMohon dicatat, terima kasih.`;
 
-            const encodedPesan = encodeURIComponent(teksPesan);
+            // Tautan wa.me standar resmi
+            const urlWa = `https://wa.me/${noWaAdmin}?text=${teksPesan}`;
 
-            // Deteksi Mobile Browser
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-            if (isMobile) {
-                // Protokol langsung aplikasi WA di Ponsel
-                window.location.href = `whatsapp://send?phone=${noWaAdmin}&text=${encodedPesan}`;
-            } else {
-                // Web WA untuk komputer/laptop
-                window.open(`https://web.whatsapp.com/send?phone=${noWaAdmin}&text=${encodedPesan}`, '_blank');
-            }
+            // Pindah halaman langsung ke WA
+            window.location.href = urlWa;
         }
 
         function renderJadwalHarianGuru(namaGuru) {
@@ -607,7 +600,7 @@
         </div>
     </div>
 
-    <!-- Container Utiliti Utama -->
+    <!-- Container Utama -->
     <div class="max-w-md mx-auto w-full space-y-4">
         
         <!-- Header -->
@@ -693,7 +686,7 @@
             </div>
         </div>
 
-         <!-- HALAMAN RIWAYAT -->
+        <!-- HALAMAN RIWAYAT -->
         <div id="page-riwayat" class="space-y-3 hidden">
             <div class="flex items-center justify-between mb-2">
                 <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Riwayat: <span id="label-riwayat-nama" class="text-emerald-400"></span></h2>
