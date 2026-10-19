@@ -394,9 +394,9 @@
         }
 
         // ====================================================
-        // FUNGSI LINK TAUTAN LANGSUNG MURNI (100% ANTI MENTAL)
+        // LINK TAUTAN MURNI TANPA BLOKIR
         // ====================================================
-        function siapkanLinkWa(el) {
+        function buatLinkWa(el) {
             const namaInput = document.getElementById('izin-nama-guru');
             const nama = (namaInput && namaInput.value.trim() !== "") ? namaInput.value : guruAktif;
             const keteranganInput = document.getElementById('izin-keterangan');
@@ -404,16 +404,15 @@
 
             if (!keterangan.trim()) {
                 alert("Harap isi catatan / alasan detail terlebih dahulu.");
-                el.href = "#";
-                return false;
+                el.href = "javascript:void(0);";
+                return;
             }
 
             const noWaAdmin = "6285864834929"; 
             const teksPesan = `Halo Admin / Guru Piket,%0A%0ASaya ingin mengirimkan keterangan ketidakhadiran:%0A- Nama: *${nama}*%0A- Keterangan: *${statusIzinPilihan}*%0A- Catatan: ${keterangan}%0A%0AMohon dicatat, terima kasih.`;
 
-            // Memasukkan URL WhatsApp secara langsung ke atribut href tag a
+            // Langsung pasang link tujuan WhatsApp murni ke tag <a>
             el.href = `https://wa.me/${noWaAdmin}?text=${teksPesan}`;
-            return true;
         }
 
         function renderJadwalHarianGuru(namaGuru) {
@@ -681,7 +680,7 @@
             </div>
         </div>
 
-         <!-- HALAMAN RIWAYAT -->
+        <!-- HALAMAN RIWAYAT -->
         <div id="page-riwayat" class="space-y-3 hidden">
             <div class="flex items-center justify-between mb-2">
                 <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Riwayat: <span id="label-riwayat-nama" class="text-emerald-400"></span></h2>
@@ -745,8 +744,8 @@
                     <textarea id="izin-keterangan" rows="3" placeholder="Tuliskan alasan atau keterangan lengkap di sini..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-emerald-500 resize-none"></textarea>
                 </div>
                 
-                <!-- MENGGUNAKAN TAG <a> MURNI YANG DI-STYLING SEPERTI TOMBOL (DIJAMIN TIDAK MENTAL OLEH BROWSER HP) -->
-                <a href="#" target="_blank" onclick="return siapkanLinkWa(this)" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-2 no-underline block text-center">
+                <!-- MENGGUNAKAN TAG LINK HTML MURNI YANG DI-STYLING SEPERTI TOMBOL -->
+                <a href="#" onclick="buatLinkWa(this)" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-2 no-underline block text-center">
                     <i class="fa-brands fa-whatsapp text-sm"></i> Kirim Laporan via WhatsApp
                 </a>
             </div>
