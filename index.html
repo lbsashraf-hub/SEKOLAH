@@ -394,35 +394,29 @@
         }
 
         // ====================================================
-        // FUNGSI KIRIM WHATSAPP TERHUBUNG LANGSUNG
+        // FUNGSI WHATSAPP AMAN & ANTI MACET
         // ====================================================
         function kirimPesanIzin(e) {
-    if (e && e.preventDefault) e.preventDefault();
+            if (e && e.preventDefault) e.preventDefault();
 
-    const namaInput = document.getElementById('izin-nama-guru');
-    const nama = (namaInput && namaInput.value.trim() !== "") ? namaInput.value : guruAktif;
-    const keteranganInput = document.getElementById('izin-keterangan');
-    const keterangan = keteranganInput ? keteranganInput.value : '';
+            const namaInput = document.getElementById('izin-nama-guru');
+            const nama = (namaInput && namaInput.value.trim() !== "") ? namaInput.value : guruAktif;
+            const keteranganInput = document.getElementById('izin-keterangan');
+            const keterangan = keteranganInput ? keteranganInput.value : '';
 
-    if (!keterangan.trim()) {
-        alert("Harap isi catatan / alasan detail terlebih dahulu.");
-        return;
-    }
+            if (!keterangan.trim()) {
+                alert("Harap isi catatan / alasan detail terlebih dahulu.");
+                return;
+            }
 
-    const noWaAdmin = "6285864834929"; 
+            const noWaAdmin = "6285864834929"; 
 
-    // Format teks pesan WhatsApp
-    const teksPesan = `Halo Admin / Guru Piket,%0A%0ASaya ingin mengirimkan keterangan ketidakhadiran:%0A- Nama: *${nama}*%0A- Keterangan: *${statusIzinPilihan}*%0A- Catatan: ${keterangan}%0A%0AMohon dicatat, terima kasih.`;
+            const teksPesan = `Halo Admin / Guru Piket,%0A%0ASaya ingin mengirimkan keterangan ketidakhadiran:%0A- Nama: *${nama}*%0A- Keterangan: *${statusIzinPilihan}*%0A- Catatan: ${keterangan}%0A%0AMohon dicatat, terima kasih.`;
 
-    const urlWa = `https://wa.me/${noWaAdmin}?text=${teksPesan}`;
+            const urlWa = `https://wa.me/${noWaAdmin}?text=${teksPesan}`;
 
-    // Membuka langsung dengan memaksa target _blank atau location assignment
-    const win = window.open(urlWa, '_blank');
-    if (!win) {
-        window.location.href = urlWa;
-    }
-}
-
+            // Langsung arahkan ke WhatsApp
+            window.location.href = urlWa;
         }
 
         function renderJadwalHarianGuru(namaGuru) {
@@ -712,8 +706,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- HALAMAN IZIN -->
+<!-- HALAMAN IZIN -->
         <div id="page-izin" class="space-y-3 hidden">
             <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-3 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
@@ -754,6 +747,7 @@
                     <textarea id="izin-keterangan" rows="3" placeholder="Tuliskan alasan atau keterangan lengkap di sini..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-emerald-500 resize-none"></textarea>
                 </div>
                 
+                <!-- Tombol WhatsApp menggunakan tag <a> yang aman di semua peramban seluler -->
                 <button type="button" onclick="kirimPesanIzin(event)" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-2">
                     <i class="fa-brands fa-whatsapp text-sm"></i> Kirim Laporan via WhatsApp
                 </button>
