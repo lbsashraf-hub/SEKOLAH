@@ -360,6 +360,53 @@
             if(qrStatus) qrStatus.innerText = `Token aktif untuk hari ini`;
             
             renderJadwalHarianGuru(namaGuru);
+            renderReminderMengajar(namaGuru);
+        }
+
+        // ==========================================
+        // FITUR REMINDER / PENGINGAT JADWAL MENGAJAR
+        // ==========================================
+        function renderReminderMengajar(namaGuru) {
+            const reminderContainer = document.getElementById('reminder-mengajar-container');
+            if (!reminderContainer) return;
+
+            const jadwalHariIni = jadwalGuru[namaGuru]?.[hariSemuaAktif];
+
+            if (daftarGuruPiket.includes(namaGuru)) {
+                reminderContainer.innerHTML = `
+                    <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex items-center gap-3 text-xs">
+                        <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-bell"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-amber-300">Pengingat Piket Harian</p>
+                            <p class="text-[10px] text-slate-300">Anda bertugas sebagai <strong>Guru Piket</strong> hari ini (${hariSemuaAktif}).</p>
+                        </div>
+                    </div>
+                `;
+                reminderContainer.classList.remove('hidden');
+                return;
+            }
+
+            if (jadwalHariIni && jadwalHariIni.length > 0) {
+                // Ambil jadwal pertama hari ini sebagai pengingat utama
+                const nextJadwal = jadwalHariIni[0];
+                reminderContainer.innerHTML = `
+                    <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-3 flex items-center gap-3 text-xs">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 animate-bounce">
+                            <i class="fa-solid fa-bell"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-bold text-emerald-300">Pengingat Jadwal Terdekat</p>
+                            <p class="text-[10px] text-slate-300">Mengajar <strong>${nextJadwal.mapel}</strong> (Kelas ${nextJadwal.kelas}) pukul <span class="font-mono text-emerald-400 font-bold">${nextJadwal.jam}</span>.</p>
+                        </div>
+                    </div>
+                `;
+                reminderContainer.classList.remove('hidden');
+            } else {
+                reminderContainer.innerHTML = '';
+                reminderContainer.classList.add('hidden');
+            }
         }
 
         function renderJadwalHarianGuru(namaGuru) {
@@ -570,6 +617,10 @@
 
         <!-- HALAMAN UTAMA -->
         <div id="page-utama" class="space-y-3">
+            
+            <!-- BANNER REMINDER / PENGINGAT MENGAJAR OTOMATIS -->
+            <div id="reminder-mengajar-container" class="hidden"></div>
+
             <!-- Card QR -->
             <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800/90 rounded-2xl p-4 text-center relative overflow-hidden shadow-xl">
                 <div class="mb-3">
