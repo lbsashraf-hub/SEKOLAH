@@ -397,28 +397,32 @@
         // FUNGSI KIRIM WHATSAPP TERHUBUNG LANGSUNG
         // ====================================================
         function kirimPesanIzin(e) {
-            if (e && e.preventDefault) e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
 
-            const namaInput = document.getElementById('izin-nama-guru');
-            const nama = (namaInput && namaInput.value.trim() !== "") ? namaInput.value : guruAktif;
-            const keteranganInput = document.getElementById('izin-keterangan');
-            const keterangan = keteranganInput ? keteranganInput.value : '';
+    const namaInput = document.getElementById('izin-nama-guru');
+    const nama = (namaInput && namaInput.value.trim() !== "") ? namaInput.value : guruAktif;
+    const keteranganInput = document.getElementById('izin-keterangan');
+    const keterangan = keteranganInput ? keteranganInput.value : '';
 
-            if (!keterangan.trim()) {
-                alert("Harap isi catatan / alasan detail terlebih dahulu.");
-                return;
-            }
+    if (!keterangan.trim()) {
+        alert("Harap isi catatan / alasan detail terlebih dahulu.");
+        return;
+    }
 
-            const noWaAdmin = "6285864834929"; 
+    const noWaAdmin = "6285864834929"; 
 
-            // Format teks pesan (%0A untuk ganti baris)
-            const teksPesan = `Halo Admin / Guru Piket,%0A%0ASaya ingin mengirimkan keterangan ketidakhadiran:%0A- Nama: *${nama}*%0A- Keterangan: *${statusIzinPilihan}*%0A- Catatan: ${keterangan}%0A%0AMohon dicatat, terima kasih.`;
+    // Format teks pesan WhatsApp
+    const teksPesan = `Halo Admin / Guru Piket,%0A%0ASaya ingin mengirimkan keterangan ketidakhadiran:%0A- Nama: *${nama}*%0A- Keterangan: *${statusIzinPilihan}*%0A- Catatan: ${keterangan}%0A%0AMohon dicatat, terima kasih.`;
 
-            // Tautan wa.me standar resmi
-            const urlWa = `https://wa.me/${noWaAdmin}?text=${teksPesan}`;
+    const urlWa = `https://wa.me/${noWaAdmin}?text=${teksPesan}`;
 
-            // Pindah halaman langsung ke WA
-            window.location.href = urlWa;
+    // Membuka langsung dengan memaksa target _blank atau location assignment
+    const win = window.open(urlWa, '_blank');
+    if (!win) {
+        window.location.href = urlWa;
+    }
+}
+
         }
 
         function renderJadwalHarianGuru(namaGuru) {
