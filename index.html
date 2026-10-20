@@ -28,6 +28,9 @@
         const daftarGuruPiket = ["Hildan", "Nadiv", "Resma"];
         const jamPiketHarian = "07:00 - Selesai";
 
+        // Ganti nomor WhatsApp tujuan admin/piket di bawah ini (format kode negara tanpa +, contoh: 6281234567890)
+        const NOMOR_WA_ADMIN = "6281234567890";
+
         const jadwalGuru = {
             "H. Ashraf Nur Ramadhan S.sos": {
                 "Sabtu": [
@@ -126,14 +129,16 @@
                 ],                    
                 "Kamis": [
                     { jam: "11:00 - 12:00", kelas: "XI", mapel: "PJOK" }
-                ],
-                "Sabtu": [
-                    { jam: "10:00 - 14:00", kelas: "Gabungan (X, XI, XII)", mapel: "E-Sport (Ekskul)", isEkskul: true }
                 ]
             },
-            "Hani": {
+            "Mamay Komarudin": {
                 "Sabtu": [
-                    { jam: "10:00 - 14:00", kelas: "Gabungan (X, XI, XII)", mapel: "Desainer (Ekskul)", isEkskul: true }
+                    { jam: "10:00 - 12:00", kelas: "Gabungan (X, XI, XII)", mapel: "Otomotif (Ekskul)", isEkskul: true }
+                ]
+            },
+            "Siti Hanifah": {
+                "Sabtu": [
+                    { jam: "10:00 - 12:00", kelas: "Gabungan (X, XI, XII)", mapel: "Desainer (Ekskul)", isEkskul: true }
                 ]
             },
             "Idan Nurjaman": {
@@ -238,6 +243,9 @@
             renderTabHariSemua();
             renderTabelSemuaGuru();
 
+            const inputIzinGuru = document.getElementById('izin-nama-guru');
+            if(inputIzinGuru) inputIzinGuru.value = guruAktif;
+
             document.addEventListener('click', (e) => {
                 const searchContainer = document.getElementById('search-container');
                 const dropdown = document.getElementById('search-dropdown');
@@ -262,6 +270,7 @@
             const pageSemuaJadwal = document.getElementById('page-semua-jadwal');
             const pageRiwayat = document.getElementById('page-riwayat');
             const pageJurnal = document.getElementById('page-jurnal');
+            const pageIzin = document.getElementById('page-izin');
             
             const sidebar = document.getElementById('sidebar-menu');
             if(sidebar && !sidebar.classList.contains('translate-x-full')) {
@@ -274,6 +283,7 @@
                 if(pageSemuaJadwal) pageSemuaJadwal.classList.add('hidden');
                 if(pageRiwayat) pageRiwayat.classList.add('hidden');
                 if(pageJurnal) pageJurnal.classList.add('hidden');
+                if(pageIzin) pageIzin.classList.add('hidden');
 
                 if (pageId === 'informasi') {
                     if(pageInformasi) pageInformasi.classList.remove('hidden');
@@ -289,6 +299,12 @@
                         pageJurnal.classList.remove('hidden');
                         const inputNamaJurnal = document.getElementById('jurnal-nama-guru');
                         if(inputNamaJurnal) inputNamaJurnal.value = guruAktif;
+                    }
+                } else if (pageId === 'izin') {
+                    if(pageIzin) {
+                        pageIzin.classList.remove('hidden');
+                        const inputIzinGuru = document.getElementById('izin-nama-guru');
+                        if(inputIzinGuru) inputIzinGuru.value = guruAktif;
                     }
                 } else {
                     if(pageUtama) pageUtama.classList.remove('hidden');
@@ -313,7 +329,7 @@
                 dropdown.innerHTML = hasil.map(nama => {
                     const isPiket = daftarGuruPiket.includes(nama);
                     return `
-                        <div onclick="pilihGuruDariPencarian('${nama}')" class="px-4 py-2.5 hover:bg-emerald-500/10 hover:text-emerald-300 text-xs text-slate-200 cursor-pointer transition-colors flex items-center justify-between border-b border-slate-800/50 last:border-none">
+                        <div onclick="pilihGuruDariPencarian('${nama}')" class="px-4 py-2.5 hover:bg-emerald-500/15 hover:text-emerald-300 text-xs text-slate-200 cursor-pointer transition-colors flex items-center justify-between border-b border-slate-800/50 last:border-none">
                             <span class="font-bold"><i class="fa-solid fa-user-tie text-emerald-400 mr-2"></i> ${nama} ${isPiket ? '<span class="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded ml-1">Piket</span>' : ''}</span>
                             <span class="text-[10px] text-slate-500 bg-slate-900 px-2 py-0.5 rounded">Pilih</span>
                         </div>
@@ -350,6 +366,9 @@
             const qrNamaBawah = document.getElementById('qr-nama-bawah');
             if(qrNamaBawah) qrNamaBawah.innerText = namaGuru;
 
+            const inputIzinGuru = document.getElementById('izin-nama-guru');
+            if(inputIzinGuru) inputIzinGuru.value = namaGuru;
+
             const t = today || new Date();
             const year = t.getFullYear();
             const month = String(t.getMonth() + 1).padStart(2, '0');
@@ -361,7 +380,7 @@
             const qrContainer = document.getElementById("qrcode");
             if(qrContainer) {
                 const encodedData = encodeURIComponent(qrData);
-                qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodedData}" alt="QR Code Presensi" class="mx-auto rounded-xl shadow-md w-44 h-44">`;
+                qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodedData}" alt="QR Code Presensi" class="mx-auto rounded-xl shadow-md w-36 h-36">`;
             }
 
             const qrStatus = document.getElementById("qr-status");
@@ -371,87 +390,22 @@
             renderReminderMengajar(namaGuru);
         }
 
-        // ==========================================
-        // SIMPAN JURNAL KE SUPABASE
-        // ==========================================
-        async function simpanJurnalMengajar(event) {
-            event.preventDefault();
-
-            const namaGuru = document.getElementById('jurnal-nama-guru').value;
-            const kelas = document.getElementById('jurnal-kelas').value;
-            const mapel = document.getElementById('jurnal-mapel').value;
-            const materi = document.getElementById('jurnal-materi').value;
-            const catatan = document.getElementById('jurnal-catatan').value;
-
-            if (!kelas || !mapel || !materi) {
-                alert("Harap lengkapi Kelas, Mata Pelajaran, dan Materi Pembelajaran!");
-                return;
-            }
-
-            const btnSimpan = document.getElementById('btn-simpan-jurnal');
-            btnSimpan.innerText = "Menyimpan...";
-            btnSimpan.disabled = true;
-
-            try {
-                const { data, error } = await _supabase
-                    .from('jurnal_mengajar') // Pastikan tabel ini sudah dibuat di Supabase Anda
-                    .insert([
-                        { 
-                            nama_guru: namaGuru, 
-                            kelas: kelas, 
-                            mapel: mapel, 
-                            materi: materi, 
-                            catatan: catatan,
-                            tanggal: new Date().toISOString()
-                        }
-                    ]);
-
-                if (error) {
-                    throw error;
-                }
-
-                alert("Berhasil! Jurnal mengajar telah disimpan ke database.");
-                document.getElementById('form-jurnal').reset();
-                document.getElementById('jurnal-nama-guru').value = guruAktif;
-                switchPage('utama');
-
-            } catch (err) {
-                console.error("Gagal menyimpan:", err.message);
-                alert("Gagal menyimpan ke database Supabase: " + err.message);
-            } finally {
-                btnSimpan.innerText = "Simpan Jurnal KBM";
-                btnSimpan.disabled = false;
-            }
-        }
-
         function renderReminderMengajar(namaGuru) {
-            const reminderContainer = document.getElementById('reminder-mengajar-container');
+            const reminderContainer = document.getElementById('container-reminder-mengajar');
             if (!reminderContainer) return;
 
-            const jadwalHariIni = jadwalGuru[namaGuru]?.[hariSemuaAktif];
-
-            if (daftarGuruPiket.includes(namaGuru)) {
-                reminderContainer.innerHTML = `
-                    <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex items-center gap-3 text-xs">
-                        <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-bell"></i>
-                        </div>
-                        <div>
-                            <p class="font-bold text-amber-300">Pengingat Piket Harian</p>
-                            <p class="text-[10px] text-slate-300">Anda bertugas sebagai <strong>Guru Piket</strong> hari ini (${hariSemuaAktif}).</p>
-                        </div>
-                    </div>
-                `;
-                reminderContainer.classList.remove('hidden');
-                return;
-            }
-
+            const t = today || new Date();
+            const dayIndex = t.getDay();
+            const hariIniStr = (dayIndex >= 1 && dayIndex <= 6) ? daftarHari[dayIndex - 1] : "Senin";
+            
+            const jadwalHariIni = jadwalGuru[namaGuru]?.[hariIniStr];
+            
             if (jadwalHariIni && jadwalHariIni.length > 0) {
                 const nextJadwal = jadwalHariIni[0];
                 reminderContainer.innerHTML = `
                     <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-3 flex items-center gap-3 text-xs">
                         <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 animate-bounce">
-                            <i class="fa-solid fa-bell"></i>
+                            <i class="fa-solid fa-bell text-xs"></i>
                         </div>
                         <div class="flex-1">
                             <p class="font-bold text-emerald-300">Pengingat Jadwal Terdekat</p>
@@ -470,57 +424,55 @@
             const container = document.getElementById('container-jadwal-harian');
             if (!container) return;
 
-            const jadwalHariIni = jadwalGuru[namaGuru]?.[hariSemuaAktif];
+            const t = today || new Date();
+            const dayIndex = t.getDay();
+            const hariIniStr = (dayIndex >= 1 && dayIndex <= 6) ? daftarHari[dayIndex - 1] : "Senin";
+            
+            const jadwalHariIni = jadwalGuru[namaGuru]?.[hariIniStr];
             
             if (daftarGuruPiket.includes(namaGuru)) {
                 container.innerHTML = `
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs">
-                        <span class="text-amber-300 font-bold"><i class="fa-solid fa-shield-halved mr-1.5"></i> Guru Piket Hari Ini (${hariSemuaAktif})</span>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between text-xs">
+                        <span class="text-amber-300 font-bold"><i class="fa-solid fa-shield-halved mr-1.5"></i> Guru Piket (${hariIniStr})</span>
                         <span class="text-slate-400 font-semibold">${jamPiketHarian}</span>
                     </div>
                 `;
                 return;
             }
 
-            if (!jadwalHariIni || jadwalHariIni.length === 0) {
+            if (jadwalHariIni && jadwalHariIni.length > 0) {
+                container.innerHTML = jadwalHariIni.map(item => `
+                    <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between text-xs hover:border-emerald-500/40 transition-all">
+                        <div>
+                            <p class="font-bold text-white"><i class="fa-solid fa-book-open text-emerald-400 mr-1.5"></i> ${item.mapel}</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Kelas: <span class="text-slate-200 font-semibold">${item.kelas}</span></p>
+                        </div>
+                        <span class="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 font-mono text-[11px] border border-emerald-500/20">${item.jam}</span>
+                    </div>
+                `).join('');
+            } else {
                 container.innerHTML = `
-                    <div class="text-center py-3 text-slate-500 text-xs italic">
-                        Tidak ada jadwal mengajar untuk hari ${hariSemuaAktif}.
+                    <div class="bg-slate-900/50 border border-slate-800/60 rounded-xl p-4 text-center text-xs text-slate-500">
+                        Tidak ada jadwal mengajar pada hari ${hariIniStr}.
                     </div>
                 `;
-                return;
             }
-
-            container.innerHTML = jadwalHariIni.map(item => `
-                <div class="bg-slate-900/90 border border-slate-800/80 rounded-xl p-2.5 flex items-center justify-between text-xs">
-                    <div>
-                        <div class="font-bold text-white flex items-center gap-1.5">
-                            <span class="text-emerald-400">${item.mapel}</span>
-                            ${item.isEkskul ? '<span class="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30">Ekskul</span>' : ''}
-                        </div>
-                        <div class="text-[10px] text-slate-400">Kelas: <span class="text-slate-200 font-medium">${item.kelas}</span></div>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-1 rounded-lg border border-slate-700 font-mono">${item.jam}</span>
-                    </div>
-                </div>
-            `).join('');
         }
 
         function renderInformasi() {
-            const container = document.getElementById('container-list-informasi');
+            const container = document.getElementById('container-informasi');
             if (!container) return;
 
             container.innerHTML = daftarInformasi.map(info => `
-                <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-2">
+                <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 space-y-2 hover:border-slate-700 transition-all">
                     <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${info.warnaKategori}">
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${info.warnaKategori}">
                             <i class="fa-solid ${info.ikon} mr-1"></i> ${info.kategori}
                         </span>
-                        <span class="text-[10px] text-slate-500">${info.tanggal}</span>
+                        <span class="text-[10px] text-slate-500"><i class="fa-regular fa-calendar mr-1"></i> ${info.tanggal}</span>
                     </div>
                     <h3 class="text-xs font-bold text-white">${info.judul}</h3>
-                    <p class="text-[11px] text-slate-400 leading-relaxed">${info.isi}</p>
+                    <p class="text-[11px] text-slate-300 leading-relaxed">${info.isi}</p>
                 </div>
             `).join('');
         }
@@ -529,60 +481,54 @@
             const container = document.getElementById('container-tab-hari');
             if (!container) return;
 
-            container.innerHTML = daftarHari.map(hari => {
-                const isActive = hari === hariSemuaAktif;
-                return `
-                    <button onclick="pilihHariSemua('${hari}')" class="px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${isActive ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20' : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'}">
-                        ${hari}
-                    </button>
-                `;
-            }).join('');
+            container.innerHTML = daftarHari.map(hari => `
+                <button onclick="pilihHariSemua('${hari}')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${hariSemuaAktif === hari ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'}">
+                    ${hari}
+                </button>
+            `).join('');
         }
 
         function pilihHariSemua(hari) {
             hariSemuaAktif = hari;
             renderTabHariSemua();
             renderTabelSemuaGuru();
-            renderJadwalHarianGuru(guruAktif);
         }
 
         function renderTabelSemuaGuru() {
             const tbody = document.getElementById('tabel-semua-jadwal-body');
             if (!tbody) return;
 
-            let html = '';
-            daftarSemuaGuru.forEach(guru => {
-                const isPiket = daftarGuruPiket.includes(guru);
-                const listJadwal = jadwalGuru[guru]?.[hariSemuaAktif];
-
+            let html = "";
+            daftarSemuaGuru.forEach(nama => {
+                const isPiket = daftarGuruPiket.includes(nama);
                 if (isPiket) {
                     html += `
                         <tr class="border-b border-slate-800/50 hover:bg-slate-900/40 text-xs">
-                            <td class="p-3 font-bold text-slate-200">${guru}</td>
-                            <td class="p-3 text-amber-300 font-semibold"><i class="fa-solid fa-shield-halved mr-1"></i> Guru Piket</td>
-                            <td class="p-3 text-slate-400">-</td>
-                            <td class="p-3 text-slate-400">${jamPiketHarian}</td>
+                            <td class="p-3.5 font-bold text-slate-200 flex items-center gap-1.5">
+                                <i class="fa-solid fa-user-shield text-amber-400"></i> ${nama}
+                            </td>
+                            <td class="p-3.5 text-amber-300 font-semibold italic" colspan="2">Guru Piket Harian</td>
+                            <td class="p-3.5 text-slate-400 font-mono text-[11px]">${jamPiketHarian}</td>
                         </tr>
                     `;
-                } else if (listJadwal && listJadwal.length > 0) {
-                    listJadwal.forEach(j => {
-                        html += `
-                            <tr class="border-b border-slate-800/50 hover:bg-slate-900/40 text-xs">
-                                <td class="p-3 font-bold text-slate-200">${guru}</td>
-                                <td class="p-3 text-emerald-400 font-medium">${j.mapel}</td>
-                                <td class="p-3 text-slate-300">${j.kelas}</td>
-                                <td class="p-3 text-slate-400 font-mono text-[10px]">${j.jam}</td>
-                            </tr>
-                        `;
-                    });
+                } else {
+                    const listJadwal = jadwalGuru[nama]?.[hariSemuaAktif];
+                    if (listJadwal && listJadwal.length > 0) {
+                        listJadwal.forEach(item => {
+                            html += `
+                                <tr class="border-b border-slate-800/50 hover:bg-slate-900/40 text-xs">
+                                    <td class="p-3.5 font-bold text-slate-200">${nama}</td>
+                                    <td class="p-3.5 text-slate-300">${item.mapel}</td>
+                                    <td class="p-3.5 text-slate-400">Kelas ${item.kelas}</td>
+                                    <td class="p-3.5 text-emerald-400 font-mono text-[11px]">${item.jam}</td>
+                                </tr>
+                            `;
+                        });
+                    }
                 }
             });
 
-            if (html === '') {
-                html = `<tr><td colspan="4" class="p-4 text-center text-xs text-slate-500 italic">Tidak ada jadwal mengajar/piket pada hari ${hariSemuaAktif}</td></tr>`;
-            }
-
-            tbody.innerHTML = html;
+            tbody.innerHTML = html !== "" ? html : `<tr><td colspan="4" class="p-4 text-center text-xs text-slate-500">Tidak ada jadwal pada hari ${hariSemuaAktif}.</td></tr>`;
         }
 
         function renderTabelRiwayat() {
@@ -594,185 +540,288 @@
 
             tbody.innerHTML = `
                 <tr class="border-b border-slate-800/50 hover:bg-slate-900/40 text-xs">
-                    <td class="p-3 text-slate-300">Hari ini</td>
-                    <td class="p-3 text-slate-400 font-mono text-[10px]">07:15 WIB</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Hadir</span></td>
-                    <td class="p-3 text-slate-400 text-[10px]">QR Code</td>
+                    <td class="p-3.5 text-slate-300">Hari ini</td>
+                    <td class="p-3.5 text-slate-400 font-mono text-[11px]">07:15 WIB</td>
+                    <td class="p-3.5"><span class="px-2.5 py-1 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">Hadir</span></td>
+                    <td class="p-3.5 text-slate-400 text-[11px]">QR Code</td>
                 </tr>
             `;
         }
+
+        // =========================================================
+        // FUNGSI SIMPAN IZIN KHUSUS KE TABEL 'izin_guru'
+        // =========================================================
+        async function kirimIzinWhatsApp(event) {
+            event.preventDefault();
+
+            const namaGuru = document.getElementById('izin-nama-guru').value;
+            const jenisIzin = document.getElementById('izin-jenis').value;
+            const keteranganDetail = document.getElementById('izin-keterangan').value;
+            const tugasInput = document.getElementById('izin-tugas')?.value || 'Belum Memberikan Tugas';
+            const btnSubmit = document.getElementById('btn-submit-izin');
+
+            if (!namaGuru || !jenisIzin || !keteranganDetail) {
+                alert("Harap lengkapi semua kolom wajib pada formulir izin!");
+                return;
+            }
+
+            if (btnSubmit) {
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-base"></i> Menyimpan ke Database...`;
+            }
+
+            try {
+                // Simpan data pengajuan izin khusus ke tabel 'izin_guru' di Supabase
+                const { data, error } = await _supabase
+                    .from('izin_guru')
+                    .insert([
+                        { 
+                            nama_guru: namaGuru, 
+                            jenis_izin: jenisIzin,
+                            keterangan: keteranganDetail,
+                            status_tugas: tugasInput
+                        }
+                    ]);
+
+                if (error) {
+                    console.error('Gagal menyimpan izin ke Supabase:', error);
+                    alert('Gagal menyimpan ke database Supabase: ' + error.message);
+                } else {
+                    console.log('Izin berhasil tersimpan di tabel izin_guru:', data);
+                }
+            } catch (err) {
+                console.error('Terjadi kesalahan:', err);
+            } finally {
+                if (btnSubmit) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = `<i class="fa-brands fa-whatsapp text-base"></i> Kirim Pengajuan Izin ke WhatsApp`;
+                }
+            }
+
+            // Buka WhatsApp untuk mengirim laporan konfirmasi langsung ke Admin/Piket
+            let pesan = `*PERMOHONAN IZIN / CUTI GURU*%0A`;
+            pesan += `----------------------------------------%0A`;
+            pesan += `*Nama Guru:* ${namaGuru}%0A`;
+            pesan += `*Jenis Izin:* ${jenisIzin}%0A`;
+            pesan += `*Keterangan:* ${keteranganDetail}%0A`;
+            pesan += `*Tugas Siswa:* ${tugasInput}%0A`;
+            pesan += `----------------------------------------%0A`;
+            pesan += `_Dikirim melalui Portal Guru SMA PUNYE GAYE_`;
+
+            const urlWhatsApp = `https://wa.me/${NOMOR_WA_ADMIN}?text=${pesan}`;
+            window.open(urlWhatsApp, '_blank');
+        }
     </script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-3 md:p-6 flex flex-col justify-between relative overflow-x-hidden">
+<body class="bg-slate-950 text-slate-100 min-h-screen p-3 md:p-8 flex flex-col justify-between relative overflow-x-hidden">
 
     <!-- Overlay Sidebar -->
-    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 hidden transition-opacity"></div>
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-40 hidden transition-opacity"></div>
 
-    <!-- Sidebar Menu -->
-    <div id="sidebar-menu" class="fixed top-0 right-0 h-full w-64 bg-slate-900 border-l border-slate-800 p-5 z-50 transform translate-x-full transition-transform duration-300 flex flex-col justify-between">
-        <div>
-            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold">
+    <!-- Sidebar Menu (Tombol Hamburger) -->
+    <div id="sidebar-menu" class="fixed top-0 right-0 h-full w-80 bg-slate-900 border-l border-slate-800 z-50 transform translate-x-full transition-transform duration-300 ease-in-out p-6 flex flex-col justify-between shadow-2xl">
+        <div class="space-y-6">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-extrabold text-sm">
                         <i class="fa-solid fa-graduation-cap"></i>
                     </div>
-                    <span class="font-extrabold text-xs tracking-wider text-white">MENU PORTAL</span>
+                    <div>
+                        <h2 class="text-xs font-extrabold text-white tracking-wider">MENU UTAMA</h2>
+                        <p class="text-[10px] text-slate-400">SMA PUNYE GAYE</p>
+                    </div>
                 </div>
-                <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white text-lg">
-                    <i class="fa-solid fa-xmark"></i>
+                <button onclick="toggleSidebar()" class="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
+
+            <!-- Daftar Menu Navigasi Sidebar -->
             <nav class="space-y-2">
-                <button onclick="switchPage('utama')" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 flex items-center gap-2.5 transition-colors">
-                    <i class="fa-solid fa-house w-4 text-center"></i> Beranda Utama
+                <button onclick="switchPage('utama')" class="w-full text-left px-4 py-3 rounded-xl text-xs font-semibold text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 flex items-center gap-3.5 transition-colors">
+                    <i class="fa-solid fa-house w-4 text-center"></i> Beranda & Presensi
                 </button>
-                <button onclick="switchPage('jurnal')" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 flex items-center gap-2.5 transition-colors">
-                    <i class="fa-solid fa-book-open w-4 text-center"></i> Jurnal Mengajar
+                <button onclick="switchPage('semua-jadwal')" class="w-full text-left px-4 py-3 rounded-xl text-xs font-semibold text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 flex items-center gap-3.5 transition-colors">
+                    <i class="fa-solid fa-calendar-days w-4 text-center"></i> Semua Jadwal Mengajar
                 </button>
-                <button onclick="switchPage('informasi')" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 flex items-center gap-2.5 transition-colors">
-                    <i class="fa-solid fa-bullhorn w-4 text-center"></i> Pengumuman & Info
+                <button onclick="switchPage('informasi')" class="w-full text-left px-4 py-3 rounded-xl text-xs font-semibold text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 flex items-center gap-3.5 transition-colors">
+                    <i class="fa-solid fa-bullhorn w-4 text-center"></i> Informasi Sekolah
                 </button>
-                <button onclick="switchPage('semua-jadwal')" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 flex items-center gap-2.5 transition-colors">
-                    <i class="fa-solid fa-calendar-days w-4 text-center"></i> Jadwal Seluruh Guru
+                <button onclick="switchPage('izin')" class="w-full text-left px-4 py-3 rounded-xl text-xs font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 flex items-center gap-3.5 transition-colors">
+                    <i class="fa-solid fa-envelope-open-text w-4 text-center text-emerald-400"></i> <span class="font-bold">Formulir Izin Guru</span>
                 </button>
-                <button onclick="switchPage('riwayat')" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 flex items-center gap-2.5 transition-colors">
+                <button onclick="switchPage('jurnal')" class="w-full text-left px-4 py-3 rounded-xl text-xs font-semibold text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 flex items-center gap-3.5 transition-colors">
+                    <i class="fa-solid fa-book-bookmark w-4 text-center"></i> Jurnal Mengajar
+                </button>
+                <button onclick="switchPage('riwayat')" class="w-full text-left px-4 py-3 rounded-xl text-xs font-semibold text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 flex items-center gap-3.5 transition-colors">
                     <i class="fa-solid fa-clock-rotate-left w-4 text-center"></i> Riwayat Presensi
                 </button>
             </nav>
         </div>
-        <div class="pt-4 border-t border-slate-800 text-[10px] text-slate-500 text-center">
-            SMA PUNYE GAYE v2.0
+
+        <div class="pt-4 border-t border-slate-800 text-center">
+            <p class="text-[10px] text-slate-500">Portal Guru v3.5 &bull; Dual-Table Sync Ready</p>
         </div>
     </div>
 
-    <!-- Container Utama -->
-    <div class="max-w-md mx-auto w-full space-y-4">
+    <!-- Main Wrapper -->
+    <div class="max-w-3xl mx-auto w-full space-y-5 my-auto">
         
-        <!-- Header -->
-        <div class="flex items-center justify-between bg-slate-900/80 border border-slate-800/80 rounded-2xl p-3.5 backdrop-blur-md">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-slate-950 font-black text-lg shadow-lg shadow-emerald-500/20">
-                    <i class="fa-solid fa-school"></i>
+        <!-- Header Utama -->
+        <header class="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-4 md:p-5 flex items-center justify-between shadow-xl backdrop-blur-md">
+            <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-extrabold text-lg shadow-inner">
+                    <i class="fa-solid fa-graduation-cap"></i>
                 </div>
                 <div>
-                    <h1 class="text-xs font-extrabold text-white tracking-wide uppercase">SMA PUNYE GAYE</h1>
-                    <p class="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Sistem Presensi Guru
-                    </p>
+                    <h1 class="text-xs md:text-sm font-extrabold text-white tracking-wider">PORTAL GURU</h1>
+                    <p class="text-[10px] md:text-xs text-slate-400">SMA PUNYE GAYE</p>
                 </div>
             </div>
-            <button onclick="toggleSidebar()" class="w-9 h-9 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white hover:border-slate-700 transition-colors">
-                <i class="fa-solid fa-bars text-sm"></i>
+            <!-- Tombol Hamburger -->
+            <button onclick="toggleSidebar()" class="w-11 h-11 rounded-xl bg-slate-800/80 text-slate-300 hover:text-emerald-400 flex items-center justify-center transition-colors border border-slate-700/50 shadow-md">
+                <i class="fa-solid fa-bars text-base"></i>
             </button>
-        </div>
-
-        <!-- Cari Guru -->
-        <div id="search-container" class="relative">
-            <div class="relative flex items-center">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-slate-500 text-xs"></i>
-                <input type="text" id="search-guru-input" onkeyup="filterGuru(this.value)" placeholder="Cari nama guru..." class="w-full bg-slate-900/90 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-all">
-            </div>
-            <div id="search-dropdown" class="absolute top-full left-0 right-0 mt-1.5 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl overflow-hidden z-30 hidden max-h-48 overflow-y-auto"></div>
-        </div>
+        </header>
 
         <!-- HALAMAN UTAMA -->
-        <div id="page-utama" class="space-y-3">
+        <div id="page-utama" class="space-y-4">
             
-            <!-- BANNER REMINDER / PENGINGAT MENGAJAR OTOMATIS -->
-            <div id="reminder-mengajar-container" class="hidden"></div>
-
-            <!-- Card QR -->
-            <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800/90 rounded-2xl p-4 text-center relative overflow-hidden shadow-xl">
-                <div class="mb-3">
-                    <span id="badge-nama-guru" class="inline-block px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-full text-xs font-bold">
-                        H. Ashraf Nur Ramadhan S.sos
+            <!-- Kotak Pencarian Guru -->
+            <div id="search-container" class="relative">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-search text-xs"></i>
                     </span>
+                    <input type="text" id="search-guru-input" oninput="filterGuru(this.value)" placeholder="Cari nama guru..." class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-xs md:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner">
                 </div>
-                <div id="qrcode" class="p-2 bg-white rounded-2xl inline-block shadow-inner my-1"></div>
-                <p id="qr-nama-bawah" class="text-xs font-bold text-slate-200 mt-2">H. Ashraf Nur Ramadhan S.sos</p>
-                <p id="qr-status" class="text-[10px] text-slate-400 mt-0.5">Token aktif untuk hari ini</p>
+                <div id="search-dropdown" class="absolute left-0 right-0 mt-1.5 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl max-h-48 overflow-y-auto z-30 hidden"></div>
             </div>
 
-            <!-- Tombol Pintasan ke Jurnal Mengajar -->
-            <button onclick="switchPage('jurnal')" class="w-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-emerald-400 font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-between transition-colors shadow-md">
-                <span class="flex items-center gap-2"><i class="fa-solid fa-book-open text-sm"></i> Isi Jurnal Mengajar Hari Ini</span>
-                <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
-            </button>
+            <!-- Grid Layout Simetris -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+                
+                <!-- Kolom Kiri: Kartu Profil & QR Presensi -->
+                <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 space-y-4 text-center shadow-lg relative overflow-hidden flex flex-col justify-between h-full">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
+                    <div>
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Guru Aktif</span>
+                        <h2 id="badge-nama-guru" class="text-sm md:text-base font-extrabold text-white mt-2"></h2>
+                    </div>
+                    
+                    <div id="qrcode" class="p-3 bg-white rounded-2xl inline-block shadow-inner mx-auto"></div>
+                    
+                    <div>
+                        <p id="qr-nama-bawah" class="text-xs font-bold text-slate-300"></p>
+                        <p id="qr-status" class="text-[10px] text-slate-500 mt-0.5"></p>
+                    </div>
 
-            <!-- Jadwal Harian -->
-            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-3.5">
-                <h3 class="text-xs font-bold text-slate-200 mb-2.5 flex items-center gap-1.5">
-                    <i class="fa-solid fa-calendar-week text-emerald-400"></i> Jadwal Mengajar & Piket Guru
-                </h3>
-                <div id="container-jadwal-harian" class="space-y-2 max-h-36 overflow-y-auto pr-1"></div>
+                    <!-- Tombol Menu Izin / Cuti Guru -->
+                    <div class="pt-2">
+                        <button onclick="switchPage('izin')" class="w-full py-3 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-extrabold rounded-xl text-xs transition-all flex items-center justify-center gap-2.5 shadow-lg shadow-emerald-500/20 border border-emerald-400/30">
+                            <i class="fa-solid fa-envelope-open-text text-sm"></i> Formulir Izin / Cuti Guru
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Kolom Kanan: Jadwal Harian & Tombol Navigasi Bawah -->
+                <div class="flex flex-col justify-between h-full space-y-4">
+                    <!-- Pengingat Jadwal Terdekat -->
+                    <div id="container-reminder-mengajar" class="hidden"></div>
+
+                    <!-- Jadwal Harian Guru -->
+                    <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 flex-1 flex flex-col justify-between shadow-lg">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-calendar-check text-emerald-400"></i> Jadwal Mengajar Hari Ini
+                                </h3>
+                            </div>
+                            <div id="container-jadwal-harian" class="space-y-2.5"></div>
+                        </div>
+
+                        <!-- Tombol Pintas Menu Cepat -->
+                        <div class="pt-3 mt-3 grid grid-cols-2 gap-2 border-t border-slate-800/60">
+                            <button onclick="switchPage('informasi')" class="py-2.5 px-3 bg-slate-800/70 hover:bg-slate-800 text-slate-300 hover:text-white rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-bullhorn text-emerald-400"></i> Info Sekolah
+                            </button>
+                            <button onclick="switchPage('semua-jadwal')" class="py-2.5 px-3 bg-slate-800/70 hover:bg-slate-800 text-slate-300 hover:text-white rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-calendar-days text-emerald-400"></i> Semua Jadwal
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
+
         </div>
 
-        <!-- HALAMAN JURNAL MENGAJAR -->
-        <div id="page-jurnal" class="space-y-3 hidden">
+        <!-- HALAMAN FORMULIR IZIN GURU -->
+        <div id="page-izin" class="space-y-4 hidden">
             <div class="flex items-center justify-between mb-2">
-                <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Form Jurnal Mengajar</h2>
-                <button onclick="switchPage('utama')" class="text-[10px] text-emerald-400 hover:underline"><i class="fa-solid fa-arrow-left mr-1"></i> Kembali</button>
+                <h2 class="text-xs md:text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-envelope-open-text text-emerald-400 text-base"></i> Formulir Pengajuan Izin Guru
+                </h2>
+                <button onclick="switchPage('utama')" class="text-xs text-emerald-400 hover:underline flex items-center gap-1"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
             </div>
-            
-            <form id="form-jurnal" onsubmit="simpanJurnalMengajar(event)" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
-                <div>
-                    <label class="block text-[10px] font-semibold text-slate-400 mb-1">Nama Guru:</label>
-                    <input type="text" id="jurnal-nama-guru" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-semibold text-slate-400 mb-1">Kelas:</label>
-                    <select id="jurnal-kelas" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
-                        <option value="">-- Pilih Kelas --</option>
-                        <option value="X">Kelas X</option>
-                        <option value="XI">Kelas XI</option>
-                        <option value="XII">Kelas XII</option>
-                        <option value="Gabungan">Gabungan (X, XI, XII)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-semibold text-slate-400 mb-1">Mata Pelajaran / Kegiatan:</label>
-                    <input type="text" id="jurnal-mapel" required placeholder="Contoh: Sejarah / Ekskul Desain" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-semibold text-slate-400 mb-1">Materi / Pokok Bahasan:</label>
-                    <textarea id="jurnal-materi" rows="2" required placeholder="Tuliskan ringkasan materi hari ini..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-emerald-500 resize-none"></textarea>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-semibold text-slate-400 mb-1">Catatan / Kendala Kelas (Opsional):</label>
-                    <textarea id="jurnal-catatan" rows="2" placeholder="Catatan khusus atau keaktifan siswa..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+
+            <form onsubmit="kirimIzinWhatsApp(event)" class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 md:p-6 space-y-4 shadow-xl">
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-300">Nama Guru <span class="text-emerald-400">*</span></label>
+                    <input type="text" id="izin-nama-guru" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs md:text-sm text-slate-100 focus:outline-none focus:border-emerald-500 shadow-inner">
                 </div>
 
-                <button type="submit" id="btn-simpan-jurnal" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition-all shadow-lg shadow-emerald-500/20">
-                    Simpan Jurnal KBM
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-300">Jenis Izin / Keterangan <span class="text-emerald-400">*</span></label>
+                    <select id="izin-jenis" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs md:text-sm text-slate-100 focus:outline-none focus:border-emerald-500 shadow-inner">
+                        <option value="Sakit">Sakit</option>
+                        <option value="Tugas Dinas / Luar Sekolah">Tugas Dinas / Luar Sekolah</option>
+                        <option value="Cuti">Cuti</option>
+                        <option value="Izin Yang Tidak Bisa Diwakilkan">Izin Yang Tidak Bisa Diwakilkan</option>
+                    </select>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-300">Keterangan / Alasan Detail <span class="text-emerald-400">*</span></label>
+                    <textarea id="izin-keterangan" rows="3" required placeholder="Tuliskan alasan atau keterangan izin secara singkat & jelas..." class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs md:text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 shadow-inner"></textarea>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-300">Tugas untuk Siswa (Opsional)</label>
+                    <input type="text" id="izin-tugas" placeholder="Contoh: Mengerjakan LKS hal 45 atau - jika tidak ada" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs md:text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 shadow-inner">
+                </div>
+
+                <button type="submit" id="btn-submit-izin" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold rounded-xl text-xs md:text-sm transition-all flex items-center justify-center gap-2.5 shadow-lg shadow-emerald-500/25">
+                    <i class="fa-brands fa-whatsapp text-base"></i> Kirim Pengajuan Izin ke WhatsApp
                 </button>
             </form>
         </div>
-<!-- HALAMAN INFORMASI -->
+
+        <!-- HALAMAN INFORMASI SEKOLAH -->
         <div id="page-informasi" class="space-y-3 hidden">
             <div class="flex items-center justify-between mb-2">
-                <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Pengumuman & Informasi</h2>
-                <button onclick="switchPage('utama')" class="text-[10px] text-emerald-400 hover:underline"><i class="fa-solid fa-arrow-left mr-1"></i> Kembali</button>
+                <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Informasi Sekolah</h2>
+                <button onclick="switchPage('utama')" class="text-xs text-emerald-400 hover:underline"><i class="fa-solid fa-arrow-left mr-1"></i> Kembali</button>
             </div>
-            <div id="container-list-informasi" class="space-y-2.5"></div>
+            <div id="container-informasi" class="space-y-3"></div>
         </div>
 
         <!-- HALAMAN SEMUA JADWAL -->
         <div id="page-semua-jadwal" class="space-y-3 hidden">
             <div class="flex items-center justify-between mb-2">
-                <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Jadwal Seluruh Guru</h2>
-                <button onclick="switchPage('utama')" class="text-[10px] text-emerald-400 hover:underline"><i class="fa-solid fa-arrow-left mr-1"></i> Kembali</button>
+                <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Semua Jadwal Mengajar</h2>
+                <button onclick="switchPage('utama')" class="text-xs text-emerald-400 hover:underline"><i class="fa-solid fa-arrow-left mr-1"></i> Kembali</button>
             </div>
-            <div id="container-tab-hari" class="flex gap-1 overflow-x-auto pb-1"></div>
-            <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl overflow-hidden">
-                <div class="max-h-64 overflow-y-auto">
+            <div id="container-tab-hari" class="flex gap-1.5 overflow-x-auto pb-1"></div>
+            <div class="bg-slate-900/70 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                <div class="max-h-80 overflow-y-auto">
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-slate-900 sticky top-0 border-b border-slate-800">
                             <tr>
-                                <th class="p-3 text-[10px] font-bold text-slate-400">Guru</th>
-                                <th class="p-3 text-[10px] font-bold text-slate-400">Mapel / Tugas</th>
-                                <th class="p-3 text-[10px] font-bold text-slate-400">Kelas</th>
-                                <th class="p-3 text-[10px] font-bold text-slate-400">Jam</th>
+                                <th class="p-3.5 text-xs font-bold text-slate-400">Guru</th>
+                                <th class="p-3.5 text-xs font-bold text-slate-400">Mapel / Tugas</th>
+                                <th class="p-3.5 text-xs font-bold text-slate-400">Kelas</th>
+                                <th class="p-3.5 text-xs font-bold text-slate-400">Jam</th>
                             </tr>
                         </thead>
                         <tbody id="tabel-semua-jadwal-body"></tbody>
@@ -785,17 +834,17 @@
         <div id="page-riwayat" class="space-y-3 hidden">
             <div class="flex items-center justify-between mb-2">
                 <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Riwayat: <span id="label-riwayat-nama" class="text-emerald-400"></span></h2>
-                <button onclick="switchPage('utama')" class="text-[10px] text-emerald-400 hover:underline"><i class="fa-solid fa-arrow-left mr-1"></i> Kembali</button>
+                <button onclick="switchPage('utama')" class="text-xs text-emerald-400 hover:underline"><i class="fa-solid fa-arrow-left mr-1"></i> Kembali</button>
             </div>
-            <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl overflow-hidden">
-                <div class="max-h-64 overflow-y-auto">
+            <div class="bg-slate-900/70 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                <div class="max-h-80 overflow-y-auto">
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-slate-900 sticky top-0 border-b border-slate-800">
                             <tr>
-                                <th class="p-3 text-[10px] font-bold text-slate-400">Tanggal</th>
-                                <th class="p-3 text-[10px] font-bold text-slate-400">Waktu</th>
-                                <th class="p-3 text-[10px] font-bold text-slate-400">Status</th>
-                                <th class="p-3 text-[10px] font-bold text-slate-400">Metode</th>
+                                <th class="p-3.5 text-xs font-bold text-slate-400">Tanggal</th>
+                                <th class="p-3.5 text-xs font-bold text-slate-400">Waktu</th>
+                                <th class="p-3.5 text-xs font-bold text-slate-400">Status</th>
+                                <th class="p-3.5 text-xs font-bold text-slate-400">Metode</th>
                             </tr>
                         </thead>
                         <tbody id="tabel-riwayat-presensi"></tbody>
@@ -804,9 +853,28 @@
             </div>
         </div>
 
+        <!-- HALAMAN JURNAL -->
+        <div id="page-jurnal" class="space-y-3 hidden">
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Jurnal Mengajar</h2>
+                <button onclick="switchPage('utama')" class="text-xs text-emerald-400 hover:underline"><i class="fa-solid fa-arrow-left mr-1"></i> Kembali</button>
+            </div>
+            <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 space-y-3.5 shadow-xl">
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-300">Nama Guru</label>
+                    <input type="text" id="jurnal-nama-guru" readonly class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-400">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-300">Catatan / Jurnal Kelas</label>
+                    <textarea rows="4" placeholder="Tuliskan kegiatan pembelajaran hari ini..." class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs md:text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500"></textarea>
+                </div>
+                <button onclick="alert('Jurnal berhasil disimpan!')" class="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs md:text-sm transition-all shadow-lg shadow-emerald-500/20">Simpan Jurnal</button>
+            </div>
+        </div>
+
         <!-- Footer -->
-        <div class="text-center pt-3 mt-4 border-t border-slate-800/80">
-            <p class="text-[9px] text-slate-500">&copy; SMA PUNYE GAYE &bull; Created By Daeng Ashraf S.Sos</p>
+        <div class="text-center pt-4 mt-6 border-t border-slate-800/80">
+            <p class="text-[10px] text-slate-500">&copy; SMA PUNYE GAYE &bull; Created By Daeng Ashraf S.Sos</p>
         </div>
     </div>
 </body>
