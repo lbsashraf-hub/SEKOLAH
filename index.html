@@ -13,6 +13,15 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        /* Animasi Modal & Notifikasi */
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop-in {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
     </style>
     <script>
         // ==========================================
@@ -27,9 +36,6 @@
         // ==========================================
         const daftarGuruPiket = ["Hildan", "Nadiv", "Resma"];
         const jamPiketHarian = "07:00 - Selesai";
-
-        // Ganti nomor WhatsApp tujuan admin/piket di bawah ini (format kode negara tanpa +, contoh: 6285864834929)
-        const NOMOR_WA_ADMIN = "6285864834929";
 
         const jadwalGuru = {
             "H. Ashraf Nur Ramadhan S.sos": {
@@ -549,9 +555,9 @@
         }
 
         // =========================================================
-        // FUNGSI SIMPAN IZIN KHUSUS KE TABEL 'izin_guru'
+        // FUNGSI SIMPAN IZIN SUPABASE DENGAN ANIMASI SAKIT/IZIN
         // =========================================================
-        async function kirimIzinWhatsApp(event) {
+        async function submitFormIzin(event) {
             event.preventDefault();
 
             const namaGuru = document.getElementById('izin-nama-guru').value;
@@ -565,13 +571,15 @@
                 return;
             }
 
+            // Mulaikan Efek Animasi & Disable Tombol saat Pengiriman
             if (btnSubmit) {
                 btnSubmit.disabled = true;
-                btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-base"></i> Menyimpan ke Database...`;
+                btnSubmit.classList.add('opacity-80', 'cursor-not-allowed');
+                btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-base mr-2"></i> Mengirim Pengajuan Izin...`;
             }
 
             try {
-                // Simpan data pengajuan izin khusus ke tabel 'izin_guru' di Supabase
+                // Simpan data langsung ke tabel 'izin_guru' Supabase
                 const { data, error } = await _supabase
                     .from('izin_guru')
                     .insert([
@@ -588,32 +596,70 @@
                     alert('Gagal menyimpan ke database Supabase: ' + error.message);
                 } else {
                     console.log('Izin berhasil tersimpan di tabel izin_guru:', data);
+                    
+                    // Tampilkan Animasi / Pop-up Sukses
+                    tampilkanModalSukses(namaGuru, jenisIzin);
+
+                    // Reset Form
+                    document.getElementById('izin-keterangan').value = '';
+                    if(document.getElementById('izin-tugas')) document.getElementById('izin-tugas').value = '';
                 }
             } catch (err) {
                 console.error('Terjadi kesalahan:', err);
+                alert('Terjadi kesalahan koneksi saat mengirim data.');
             } finally {
                 if (btnSubmit) {
                     btnSubmit.disabled = false;
-                    btnSubmit.innerHTML = `<i class="fa-brands fa-whatsapp text-base"></i> Kirim Pengajuan Izin ke WhatsApp`;
+                    btnSubmit.classList.remove('opacity-80', 'cursor-not-allowed');
+                    btnSubmit.innerHTML = `<i class="fa-solid fa-paper-plane text-base mr-1"></i> Kirim Pengajuan Izin`;
                 }
             }
+        }
 
-            // Buka WhatsApp untuk mengirim laporan konfirmasi langsung ke Admin/Piket
-            let pesan = `*PERMOHONAN IZIN / CUTI GURU*%0A`;
-            pesan += `----------------------------------------%0A`;
-            pesan += `*Nama Guru:* ${namaGuru}%0A`;
-            pesan += `*Jenis Izin:* ${jenisIzin}%0A`;
-            pesan += `*Keterangan:* ${keteranganDetail}%0A`;
-            pesan += `*Tugas Siswa:* ${tugasInput}%0A`;
-            pesan += `----------------------------------------%0A`;
-            pesan += `_Dikirim melalui Portal Guru SMA PUNYE GAYE_`;
+        // Tampilkan Modal Notifikasi Berhasil Kirim dengan Animasi Pop-in
+        function tampilkanModalSukses(nama, jenis) {
+            const modal = document.getElementById('modal-sukses-izin');
+            const detailText = document.getElementById('modal-detail-text');
+            
+            if (detailText) {
+                detailText.innerText = `Pengajuan Izin (${jenis}) atas nama ${nama} berhasil dikirim ke sistem!`;
+            }
 
-            const urlWhatsApp = `https://wa.me/${NOMOR_WA_ADMIN}?text=${pesan}`;
-            window.open(urlWhatsApp, '_blank');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function tutupModalSukses() {
+            const modal = document.getElementById('modal-sukses-izin');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
         }
     </script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-3 md:p-8 flex flex-col justify-between relative overflow-x-hidden">
+
+    <!-- Modal Sukses Pengiriman Izin (Animasi Pop-In) -->
+    <div id="modal-sukses-izin" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-sm w-full text-center space-y-4 shadow-2xl animate-pop-in">
+            <!-- Icon Animasi Centang -->
+            <div class="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-3xl mx-auto shadow-lg shadow-emerald-500/20 animate-pulse">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            
+            <div class="space-y-1">
+                <h3 class="text-base md:text-lg font-extrabold text-white">Berhasil Dikirim!</h3>
+                <p id="modal-detail-text" class="text-xs text-slate-400 leading-relaxed"></p>
+            </div>
+
+            <button onclick="tutupModalSukses()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold rounded-xl text-xs transition-all shadow-lg shadow-emerald-500/20">
+                Selesai & Tutup
+            </button>
+        </div>
+    </div>
 
     <!-- Overlay Sidebar -->
     <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-40 hidden transition-opacity"></div>
@@ -660,7 +706,7 @@
         </div>
 
         <div class="pt-4 border-t border-slate-800 text-center">
-            <p class="text-[10px] text-slate-500">Portal Guru v3.5 &bull; Dual-Table Sync Ready</p>
+            <p class="text-[10px] text-slate-500">Portal Guru v3.8 &bull; Direct Supabase Sync</p>
         </div>
     </div>
 
@@ -765,7 +811,8 @@
                 <button onclick="switchPage('utama')" class="text-xs text-emerald-400 hover:underline flex items-center gap-1"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
             </div>
 
-            <form onsubmit="kirimIzinWhatsApp(event)" class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 md:p-6 space-y-4 shadow-xl">
+            <!-- Form Langsung Simpan Supabase (Tanpa WA) -->
+            <form onsubmit="submitFormIzin(event)" class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 md:p-6 space-y-4 shadow-xl">
                 <div class="space-y-1.5">
                     <label class="text-xs font-bold text-slate-300">Nama Guru <span class="text-emerald-400">*</span></label>
                     <input type="text" id="izin-nama-guru" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs md:text-sm text-slate-100 focus:outline-none focus:border-emerald-500 shadow-inner">
@@ -775,9 +822,10 @@
                     <label class="text-xs font-bold text-slate-300">Jenis Izin / Keterangan <span class="text-emerald-400">*</span></label>
                     <select id="izin-jenis" required class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs md:text-sm text-slate-100 focus:outline-none focus:border-emerald-500 shadow-inner">
                         <option value="Sakit">Sakit</option>
+                        <option value="Izin Keperluan Keluarga">Izin Keperluan Keluarga</option>
                         <option value="Tugas Dinas / Luar Sekolah">Tugas Dinas / Luar Sekolah</option>
                         <option value="Cuti">Cuti</option>
-                        <option value="Izin Yang Tidak Bisa Diwakilkan">Izin Yang Tidak Bisa Diwakilkan</option>
+                        <option value="Lainnya">Lainnya</option>
                     </select>
                 </div>
 
@@ -791,8 +839,8 @@
                     <input type="text" id="izin-tugas" placeholder="Contoh: Mengerjakan LKS hal 45 atau - jika tidak ada" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs md:text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 shadow-inner">
                 </div>
 
-                <button type="submit" id="btn-submit-izin" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold rounded-xl text-xs md:text-sm transition-all flex items-center justify-center gap-2.5 shadow-lg shadow-emerald-500/25">
-                    <i class="fa-brands fa-whatsapp text-base"></i> Kirim Pengajuan Izin ke WhatsApp
+                <button type="submit" id="btn-submit-izin" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold rounded-xl text-xs md:text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25">
+                    <i class="fa-solid fa-paper-plane text-base mr-1"></i> Kirim Pengajuan Izin
                 </button>
             </form>
         </div>
